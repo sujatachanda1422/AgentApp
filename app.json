@@ -1,0 +1,13 @@
+{
+  "name": "MyChat",
+  "displayName": "MyChat",
+  "expo": {
+    "name": "MyChat",
+    "slug": "MyChat",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "description": ""
+  }
+}
