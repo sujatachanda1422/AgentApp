@@ -38,7 +38,7 @@ export default class Login extends Component {
                         password: ''
                     });
 
-                    this.props.navigation.navigate('Chat');
+                    this.props.navigation.navigate('Home');
                 })
                 .catch(error => {
                     console.log('Login error = ', error);

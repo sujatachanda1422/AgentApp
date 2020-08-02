@@ -21,8 +21,9 @@ export default class Chat extends Component {
     super(props);
     this.state = {
       person: {
-        name: 'Sujata',
-        phone: '9062103433',
+        name: this.props.route.params.name,
+        from: this.props.route.params.from,
+        to: this.props.route.params.to
       },
       textMessage: '',
       messageList: [],
@@ -33,8 +34,8 @@ export default class Chat extends Component {
     firebase
       .database()
       .ref('messages')
-      .child('8062103433')
-      .child(this.state.person.phone)
+      .child(this.state.person.from)
+      .child(this.state.person.to)
       .on('child_added', value => {
         console.log("Old chats == ", value.val());
         this.setState(prevState => {
@@ -65,20 +66,20 @@ export default class Chat extends Component {
       let msgId = firebase
         .database()
         .ref('messages')
-        .child('8062103433')
-        .child(this.state.person.phone)
+        .child(this.state.person.from)
+        .child(this.state.person.to)
         .push().key;
       let updates = {};
       let message = {
         message: this.state.textMessage,
         time: firebase.database.ServerValue.TIMESTAMP,
-        from: '8062103433',
+        from: this.state.person.from,
       };
       updates[
-        'messages/' + '8062103433' + '/' + this.state.person.phone + '/' + msgId
+        'messages/' + this.state.person.from + '/' + this.state.person.to + '/' + msgId
       ] = message;
       updates[
-        'messages/' + this.state.person.phone + '/' + '8062103433' + '/' + msgId
+        'messages/' + this.state.person.to + '/' + this.state.person.from + '/' + msgId
       ] = message;
       firebase
         .database()
@@ -94,8 +95,8 @@ export default class Chat extends Component {
         style={{
           flexDirection: 'row',
           width: '70%',
-          alignSelf: item.from === '8062103433' ? 'flex-end' : 'flex-start',
-          backgroundColor: item.from === '8062103433' ? '#00A398' : '#7cb342',
+          alignSelf: item.from === this.state.person.from ? 'flex-end' : 'flex-start',
+          backgroundColor: item.from === this.state.person.from ? '#00A398' : '#7cb342',
           borderRadius: 10,
           marginBottom: 10,
         }}>

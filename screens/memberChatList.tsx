@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
 import firebase from '../database/firebase';
 
-export default class Home extends Component {
+export default class MemberChatList extends Component {
   memberArray: Array<Object> = [];
 
   constructor() {
@@ -12,18 +12,15 @@ export default class Home extends Component {
     }
   }
 
-  signOut = () => {
-    // firebase.auth().signOut().then(() => {
-    this.props.navigation.navigate('Login')
-    // })
-    // .catch(error => this.setState({ errorMessage: error.message }))
-  }
-
   UNSAFE_componentWillMount() {
+    const memberId = this.props.route.params.uid;
+
     firebase
       .firestore()
-      .collection("member_master").get().then((querySnapshot) => {
-        console.log('Query - ', querySnapshot);
+      .collection("member_master")
+      .doc(memberId)
+      .collection('chat_list').get().then((querySnapshot) => {
+        // console.log('Query - ', querySnapshot);
 
         querySnapshot.forEach((doc) => {
           this.memberArray.push(doc.data());
@@ -44,7 +41,12 @@ export default class Home extends Component {
           keyExtractor={(index) => index.uid}
           renderItem={({ item }) =>
             <TouchableOpacity style={styles.item}
-              onPress={() => this.props.navigation.navigate('MemberChatList', { uid: item.uid })} >
+              onPress={() => this.props.navigation.navigate('Chat',
+                {
+                  from: item.uid,
+                  to: '1',
+                  name: item.name
+                })} >
               <Text style={styles.listText}>
                 {item.name}
               </Text>
