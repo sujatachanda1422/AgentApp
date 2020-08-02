@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator, ImageBackground } from 'react-native';
 import firebase from '../database/firebase';
 
-export default class Signup extends Component {
+const image = require("../images/bkg.jpg");
 
+export default class Signup extends Component {
   constructor() {
     super();
     this.state = {
-      displayName: '',
+      name: '',
       email: '',
       password: '',
       isLoading: false
@@ -27,22 +28,25 @@ export default class Signup extends Component {
       this.setState({
         isLoading: true
       });
-      
+
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then((res) => {
-          // res.user.updateProfile({
-          //   displayName: this.state.displayName
-          // })
+          res.user.updateProfile({
+            name: this.state.name
+          });
+
           console.log('User registered successfully!', res);
+
           this.setState({
             isLoading: false,
-            displayName: '',
+            name: '',
             email: '',
             password: ''
-          })
-          this.props.navigation.navigate('Login')
+          });
+
+          this.props.navigation.navigate('Login');
         })
         .catch(error => {
           console.log('Register error = ', error);
@@ -61,31 +65,35 @@ export default class Signup extends Component {
     }
     return (
       <View style={styles.container}>
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="Email"
-          value={this.state.email}
-          onChangeText={(val) => this.updateInputVal(val, 'email')}
-        />
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="Password"
-          value={this.state.password}
-          onChangeText={(val) => this.updateInputVal(val, 'password')}
-          maxLength={15}
-          secureTextEntry={true}
-        />
-        <Button
-          color="#3740FE"
-          title="Signup"
-          onPress={() => this.registerUser()}
-        />
-
-        <Text
-          style={styles.loginText}
-          onPress={() => this.props.navigation.navigate('Login')}>
-          Already Registered? Click here to login
-        </Text>
+        <ImageBackground source={image} style={styles.image}>
+          <View style={styles.overlay}>
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Name"
+              value={this.state.name}
+              onChangeText={(val) => this.updateInputVal(val, 'name')}
+            />
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Email"
+              value={this.state.email}
+              onChangeText={(val) => this.updateInputVal(val, 'email')}
+            />
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Password"
+              value={this.state.password}
+              onChangeText={(val) => this.updateInputVal(val, 'password')}
+              maxLength={15}
+              secureTextEntry={true}
+            />
+            <Button
+              color="#3740FE"
+              title="Signup"
+              onPress={() => this.registerUser()}
+            />
+          </View>
+        </ImageBackground>
       </View>
     );
   }
@@ -96,22 +104,26 @@ const styles = StyleSheet.create({
     flex: 1,
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center"
+  },
+  overlay: {
+    backgroundColor: 'rgba(199,199,199,0.3)',
+    height: '100%',
+    flexDirection: "column",
     justifyContent: "center",
-    padding: 35,
-    backgroundColor: '#fff'
+    padding: 20,
+  },
+  image: {
+    flex: 1,
+    justifyContent: "center"
   },
   inputStyle: {
     width: '100%',
-    marginBottom: 15,
-    paddingBottom: 15,
+    marginBottom: 25,
+    padding: 10,
     alignSelf: "center",
-    borderColor: "#ccc",
-    borderBottomWidth: 1
-  },
-  loginText: {
-    color: '#3740FE',
-    marginTop: 25,
-    textAlign: 'center'
+    backgroundColor: '#fff',
+    borderRadius: 2
   },
   preloader: {
     left: 0,

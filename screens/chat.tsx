@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   View,
   SafeAreaView,
@@ -13,21 +13,22 @@ import {
 import firebase from 'firebase';
 
 export default class Chat extends Component {
-  static navigationOptions = ({route}) => ({
-    title: route.params.name,
-  });
-
   constructor(props) {
     super(props);
     this.state = {
       person: {
-        name: this.props.route.params.name,
         from: this.props.route.params.from,
         to: this.props.route.params.to
       },
       textMessage: '',
       messageList: [],
     };
+  }
+
+  componentDidMount() {
+    this.props.navigation.setOptions({
+      title: this.props.route.params.name
+    })
   }
 
   UNSAFE_componentWillMount() {
@@ -47,7 +48,7 @@ export default class Chat extends Component {
   }
 
   handleChange = key => val => {
-    this.setState({[key]: val});
+    this.setState({ [key]: val });
   };
 
   convertTime = time => {
@@ -75,21 +76,24 @@ export default class Chat extends Component {
         time: firebase.database.ServerValue.TIMESTAMP,
         from: this.state.person.from,
       };
+
       updates[
         'messages/' + this.state.person.from + '/' + this.state.person.to + '/' + msgId
       ] = message;
       updates[
         'messages/' + this.state.person.to + '/' + this.state.person.from + '/' + msgId
       ] = message;
+
       firebase
         .database()
         .ref()
         .update(updates);
-      this.setState({textMessage: ''});
+
+      this.setState({ textMessage: '' });
     }
   };
 
-  renderRow = ({item}) => {
+  renderRow = ({ item }) => {
     return (
       <View
         style={{
@@ -100,10 +104,10 @@ export default class Chat extends Component {
           borderRadius: 10,
           marginBottom: 10,
         }}>
-        <Text style={{color: '#fff', padding: 7, fontSize: 16}}>
+        <Text style={{ color: '#fff', padding: 7, fontSize: 16 }}>
           {item.message}
         </Text>
-        <Text style={{color: '#eee', padding: 3, fontSize: 12}}>
+        <Text style={{ color: '#eee', padding: 3, fontSize: 12 }}>
           {this.convertTime(item.time)}
         </Text>
       </View>
@@ -111,11 +115,12 @@ export default class Chat extends Component {
   };
 
   render() {
-    let {height, width} = Dimensions.get('window');
+    let { height } = Dimensions.get('window');
+
     return (
       <SafeAreaView>
         <FlatList
-          style={{padding: 10, height: height * 0.8}}
+          style={{ padding: 10, height: height * 0.8 }}
           data={this.state.messageList}
           renderItem={this.renderRow}
           keyExtractor={(item, index) => index.toString()}
@@ -134,10 +139,10 @@ export default class Chat extends Component {
           />
           <TouchableOpacity
             onPress={this.sendMessage}
-            style={{paddingBottom: 10, marginLeft: 5}}>
+            style={{ paddingBottom: 10, marginLeft: 5 }}>
             <Image
               source={require('../images/send-button.png')}
-              style={{width: 32, height: 32, marginRight: 5, marginLeft: 5}}
+              style={{ width: 32, height: 32, marginRight: 5, marginLeft: 5 }}
             />
           </TouchableOpacity>
         </View>
@@ -147,13 +152,13 @@ export default class Chat extends Component {
 }
 
 const styles = StyleSheet.create({
-    input: {
-        padding: 10,
-        borderWidth: 2,
-        borderColor: '#cccc',
-        width: '80%',
-        marginBottom: 10,
-        borderRadius: 5,
-        color: '#000000',
-      }
-  });
+  input: {
+    padding: 10,
+    borderWidth: 2,
+    borderColor: '#cccc',
+    width: '80%',
+    marginBottom: 10,
+    borderRadius: 5,
+    color: '#000000',
+  }
+});

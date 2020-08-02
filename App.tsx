@@ -1,7 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, Button } from 'react-native';
-
+import { StyleSheet, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Register from './screens/register';
@@ -10,14 +8,13 @@ import Home from './screens/home';
 import Chat from './screens/chat';
 import AddMember from './screens/addMember';
 import MemberChatList from './screens/memberChatList';
-import { Provider as PaperProvider } from 'react-native-paper';
+
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <PaperProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Login"
             component={Login}
@@ -28,6 +25,11 @@ export default function App() {
           <Stack.Screen
             name="Register"
             component={Register}
+            options={{
+              headerTitleStyle: {
+                textAlign: "center"
+              }
+            }}
           />
           <Stack.Screen
             name="Home"
@@ -37,8 +39,7 @@ export default function App() {
               headerRight: () => (
                 <Button
                   onPress={() => navigation.navigate('AddMember')}
-                  title="ADD"
-                  color="#000"
+                  title="ADD" color="#000"
                 />
               )
             })}
@@ -57,7 +58,6 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </PaperProvider>
   );
 }
 
