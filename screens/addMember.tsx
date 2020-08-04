@@ -49,7 +49,7 @@ export default class AddMember extends Component {
           onChangeText={(val) => this.updateInputVal(val, 'mobile')}
         />
         <TextInput
-          style={styles.inputStyle}
+          style={[styles.inputStyle, {marginBottom: 10}]}
           placeholder="Full Name"
           value={this.state.name}
           onChangeText={(val) => this.updateInputVal(val, 'name')}
@@ -58,12 +58,12 @@ export default class AddMember extends Component {
           value={this.state.gender}>
           <View style={styles.radio}>
             <Text style={styles.radioText}>Gender: </Text>
-            <RadioButton.Item label="Male" value="male" style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
-            <RadioButton.Item label="Female" value="female" style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
+            <RadioButton.Item label="Male" value="male" color='blue' style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
+            <RadioButton.Item label="Female" value="female"  color='blue' style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
           </View>
         </RadioButton.Group>
         <TextInput
-          style={styles.inputStyle}
+          style={[styles.inputStyle, {marginBottom: 35}]}
           placeholder="City"
           value={this.state.city}
           onChangeText={(val) => this.updateInputVal(val, 'city')}
@@ -85,23 +85,23 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     padding: 35,
-    backgroundColor: '#fff'
+    backgroundColor: '#aac8dc'
   },
   inputStyle: {
     width: '100%',
-    marginBottom: 15,
-    paddingBottom: 15,
-    alignSelf: "center",
-    borderColor: "#ccc",
-    borderBottomWidth: 1
+    marginBottom: 25,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 2
   },
   radio: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 10
   },
   radioText: {
-    verticalAlign: 'middle',
-    lineHeight: 30
+    lineHeight: 30,
+    fontSize: 16
   },
   radioBtn: {
     marginRight: 20,

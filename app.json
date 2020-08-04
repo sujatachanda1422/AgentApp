@@ -9,6 +9,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "description": ""
+    "description": "",
+    "android": {
+      "package": "com.sujata1422.MyChat"
+    }
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Button } from 'react-native';
+import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Register from './screens/register';
@@ -13,59 +13,79 @@ const Stack = createStackNavigator();
 
 export default function App() {
   return (
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Register"
-            component={Register}
-            options={{
-              headerTitleStyle: {
-                textAlign: "center"
-              }
-            }}
-          />
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={({ navigation, route }) => ({
-              title: 'Member List',
-              headerRight: () => (
-                <Button
-                  onPress={() => navigation.navigate('AddMember')}
-                  title="ADD" color="#000"
-                />
-              )
-            })}
-          />
-          <Stack.Screen
-            name="AddMember"
-            component={AddMember}
-          />
-          <Stack.Screen
-            name="MemberChatList"
-            component={MemberChatList}
-          />
-          <Stack.Screen
-            name="Chat"
-            component={Chat}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login"
+        screenOptions={{
+          headerTitleAlign: 'center',
+          headerTitleStyle: {
+            color: '#fff'
+          },
+          headerStyle: {
+            backgroundColor: '#0c2c94',
+          },
+        }}>
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={Register}
+          options={{
+            headerTitleStyle: {
+              textAlign: "center"
+            }
+          }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={({ navigation }) => ({
+            title: 'Member List',
+            headerRight: () => (
+              <TouchableOpacity onPress={() => navigation.navigate('AddMember')}>
+                <Text style={styles.addBtn}>
+                  ADD
+                </Text>
+              </TouchableOpacity>
+            )
+          })}
+        />
+        <Stack.Screen
+          name="AddMember"
+          options= {{
+            title: 'Add Member'
+          }}
+          component={AddMember}
+        />
+        <Stack.Screen
+          name="MemberChatList"
+          options= {{
+            title: 'Chat List'
+          }}
+          component={MemberChatList}
+        />
+        <Stack.Screen
+          name="Chat"
+          component={Chat}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  addBtn: {
+    color: '#000',
+    fontSize: 16,
+    marginRight: 20,
+    borderRadius: 2,
+    fontWeight: 'bold',
+    backgroundColor: '#ddd',
+    paddingHorizontal: 8,
+    paddingVertical: 5
   },
 });

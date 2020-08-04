@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   View,
-  SafeAreaView,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -115,26 +115,29 @@ export default class Chat extends Component {
   };
 
   render() {
-    let { height } = Dimensions.get('window');
+    // let { height } = Dimensions.get('window');
 
     return (
-      <SafeAreaView>
-        <FlatList
-          style={{ padding: 10, height: height * 0.8 }}
-          data={this.state.messageList}
-          renderItem={this.renderRow}
-          keyExtractor={(item, index) => index.toString()}
-        />
+      <View style={{ display: "flex", flexDirection: 'column', height: '100%' }}>
+        <ScrollView style={{ flex: 1 }}>
+          <FlatList
+            style={{ padding: 10 }}
+            data={this.state.messageList}
+            renderItem={this.renderRow}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </ScrollView>
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             marginHorizontal: 5,
+            display: 'flex'
           }}>
           <TextInput
             style={styles.input}
             value={this.state.textMessage}
-            placeholder="type message here..."
+            placeholder="Type your message here..."
             onChangeText={this.handleChange('textMessage')}
           />
           <TouchableOpacity
@@ -146,7 +149,7 @@ export default class Chat extends Component {
             />
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 }
@@ -156,9 +159,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 2,
     borderColor: '#cccc',
-    width: '80%',
     marginBottom: 10,
     borderRadius: 5,
     color: '#000000',
+    flex: 1
   }
 });

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
 import firebase from '../database/firebase';
+import { AntDesign } from '@expo/vector-icons';
 
 export default class MemberChatList extends Component {
   memberArray: Array<Object> = [];
@@ -47,10 +48,15 @@ export default class MemberChatList extends Component {
                   to: '1',
                   name: item.name
                 })} >
-              <Text style={styles.listText}>
-                {item.name}
-              </Text>
-              <Text>City: {item.city}</Text>
+              <View style={styles.listItem}>
+                <Text style={styles.listText}>
+                  {item.name}
+                </Text>
+                <Text style={styles.listText}>City: {item.city}</Text>
+              </View>
+              <View>
+                <AntDesign name="right" size={24} color="black" />
+              </View>
             </TouchableOpacity>}
         />
       </View>
@@ -62,15 +68,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     display: "flex",
-    backgroundColor: '#fff'
+    backgroundColor: '#aac8dc'
   },
   item: {
-    padding: 10,
-    width: '100%',
-    borderBottomColor: '#000',
-    borderBottomWidth: 1
+    paddingHorizontal: 10,
+    borderColor: '#868181',
+    borderWidth: 1,
+    marginLeft: 10,
+    marginTop: 10,
+    marginRight: 10,
+    borderRadius: 4,
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  listItem: {
+    flex: 1,
+    marginBottom: 6
   },
   listText: {
+    textTransform: 'capitalize',
     lineHeight: 30
   }
 });

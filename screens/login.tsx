@@ -75,7 +75,7 @@ export default class Login extends Component {
                             justifyContent: 'center', 
                             alignItems: 'center', 
                             marginTop: 20 }}>
-                            <Image
+                            {/* <Image
                                 style={{
                                     flex: 1,
                                     resizeMode: 'cover',
@@ -83,7 +83,7 @@ export default class Login extends Component {
                                     height: 50,
                                 }}
                                 source={require('../images/chat.png')}
-                            />
+                            /> */}
                             <Text style={{ position: 'absolute', fontSize: 20 }}>ChunMun</Text>
                         </View>
                         <TextInput
