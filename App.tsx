@@ -34,11 +34,6 @@ export default function App() {
         <Stack.Screen
           name="Register"
           component={Register}
-          options={{
-            headerTitleStyle: {
-              textAlign: "center"
-            }
-          }}
         />
         <Stack.Screen
           name="Home"
