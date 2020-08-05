@@ -19,8 +19,8 @@ export default class Login extends Component {
     constructor() {
         super();
         this.state = {
-            email: '',
-            password: '',
+            email: 'testagent@mail.com',
+            password: '1234',
             isLoading: false
         }
     }
@@ -31,26 +31,55 @@ export default class Login extends Component {
         this.setState(state);
     }
 
+    UNSAFE_componentWillMount() {
+        try {
+            const registeredUserEmail = this.props.route.params.email;
+            if (registeredUserEmail) {
+                this.setState({ email: registeredUserEmail });
+            }
+        }
+
+        catch (err) {
+            console.log('Email not found');
+        }
+    }
+
     userLogin = () => {
         if (this.state.email === '' && this.state.password === '') {
             Alert.alert('Enter details to signin!')
         } else {
             this.setState({
                 isLoading: true,
-            })
-            firebase
-                .auth()
-                .signInWithEmailAndPassword(this.state.email, this.state.password)
-                .then((res) => {
-                    console.log('User logged-in successfully!', res);
+            });
 
-                    this.setState({
-                        isLoading: false,
-                        email: '',
-                        password: ''
+            firebase
+                .firestore()
+                .collection("agent_list")
+                .where('email', '==', this.state.email)
+                .get()
+                .then((querySnapshot) => {
+                    let memberDetails;
+
+                    querySnapshot.forEach((doc) => {
+                        memberDetails = doc.data();
                     });
 
-                    this.props.navigation.navigate('Home');
+                    console.log('Query - ', memberDetails);
+
+                    this.setState({
+                        isLoading: false
+                    });
+
+                    if (!memberDetails) {
+                        console.error('Mobile mumber not found');
+                        return;
+                    }
+
+                    if (this.state.password === memberDetails.password) {
+                        this.props.navigation.navigate('Home', { user: memberDetails });
+                    } else {
+                        console.error('Wrong pin')
+                    }
                 })
                 .catch(error => {
                     console.log('Login error = ', error);
@@ -71,10 +100,12 @@ export default class Login extends Component {
             <View style={styles.container}>
                 <ImageBackground source={image} style={styles.image}>
                     <View style={styles.overlay}>
-                        <View style={{ flex: 1, 
-                            justifyContent: 'center', 
-                            alignItems: 'center', 
-                            marginTop: 20 }}>
+                        <View style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginTop: 20
+                        }}>
                             {/* <Image
                                 style={{
                                     flex: 1,
@@ -89,20 +120,20 @@ export default class Login extends Component {
                         <TextInput
                             style={styles.inputStyle}
                             placeholder="Email"
-                            value={this.state.email = 'test321@test.com'}
+                            value={this.state.email}
                             onChangeText={(val) => this.updateInputVal(val, 'email')}
                         />
                         <TextInput
                             style={styles.inputStyle}
                             placeholder="Password"
-                            value={this.state.password = 'test321'}
+                            value={this.state.password}
                             onChangeText={(val) => this.updateInputVal(val, 'password')}
                             maxLength={15}
                             secureTextEntry={true}
                         />
                         <Button
                             color="#3740FE"
-                            title="Signin"
+                            title="Sign In"
                             onPress={() => this.userLogin()}
                         />
 

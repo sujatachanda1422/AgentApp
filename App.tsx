@@ -38,10 +38,10 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={Home}
-          options={({ navigation }) => ({
+          options={({ navigation, route }) => ({
             title: 'Member List',
             headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate('AddMember')}>
+              <TouchableOpacity onPress={() => navigation.navigate('AddMember', { uid: route.params.user.uid })}>
                 <Text style={styles.addBtn}>
                   ADD
                 </Text>
@@ -51,14 +51,14 @@ export default function App() {
         />
         <Stack.Screen
           name="AddMember"
-          options= {{
+          options={{
             title: 'Add Member'
           }}
           component={AddMember}
         />
         <Stack.Screen
           name="MemberChatList"
-          options= {{
+          options={{
             title: 'Chat List'
           }}
           component={MemberChatList}

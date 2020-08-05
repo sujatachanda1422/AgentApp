@@ -13,13 +13,17 @@ export default class AddMember extends Component {
       name: '',
       gender: 'male',
       city: '',
-      uid: '',
       agentId: ''
     }
 
     this.db = firebase.firestore();
   }
-  updateInputVal = (val, prop) => {
+
+  UNSAFE_componentWillMount() {
+    this.setState({ agentId: this.props.route.params.uid });
+  }
+
+  updateInputVal = (val: any, prop: React.ReactText) => {
     const state = this.state;
     state[prop] = val;
     this.setState(state);
@@ -28,13 +32,13 @@ export default class AddMember extends Component {
   addMember = () => {
     console.log('Member = ', this.state);
 
-    this.db.collection("member_master").add(this.state)
-      .then((docRef) => {
-        console.log("Document written with ID: ", docRef);
-        docRef.update({ uid: docRef.id });
+    this.db.collection("member_list")
+    .doc(this.state.mobile)
+    .set(this.state)
+      .then( (_: any) => {
         this.props.navigation.navigate('Home');
       })
-      .catch(function (error) {
+      .catch(function (error: any) {
         console.error("Error adding document: ", error);
       });
   }
@@ -49,7 +53,7 @@ export default class AddMember extends Component {
           onChangeText={(val) => this.updateInputVal(val, 'mobile')}
         />
         <TextInput
-          style={[styles.inputStyle, {marginBottom: 10}]}
+          style={[styles.inputStyle, { marginBottom: 10 }]}
           placeholder="Full Name"
           value={this.state.name}
           onChangeText={(val) => this.updateInputVal(val, 'name')}
@@ -59,11 +63,11 @@ export default class AddMember extends Component {
           <View style={styles.radio}>
             <Text style={styles.radioText}>Gender: </Text>
             <RadioButton.Item label="Male" value="male" color='blue' style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
-            <RadioButton.Item label="Female" value="female"  color='blue' style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
+            <RadioButton.Item label="Female" value="female" color='blue' style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
           </View>
         </RadioButton.Group>
         <TextInput
-          style={[styles.inputStyle, {marginBottom: 35}]}
+          style={[styles.inputStyle, { marginBottom: 35 }]}
           placeholder="City"
           value={this.state.city}
           onChangeText={(val) => this.updateInputVal(val, 'city')}

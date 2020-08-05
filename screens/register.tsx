@@ -5,6 +5,8 @@ import firebase from '../database/firebase';
 const image = require("../images/bkg.jpg");
 
 export default class Signup extends Component {
+  db: firebase.firestore.Firestore;
+
   constructor() {
     super();
     this.state = {
@@ -12,7 +14,9 @@ export default class Signup extends Component {
       email: '',
       password: '',
       isLoading: false
-    }
+    };
+
+    this.db = firebase.firestore();
   }
 
   updateInputVal = (val, prop) => {
@@ -29,15 +33,16 @@ export default class Signup extends Component {
         isLoading: true
       });
 
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.state.email, this.state.password)
-        .then((res) => {
-          res.user.updateProfile({
-            name: this.state.name
-          });
+      this.db.collection("agent_list").add({
+        name: this.state.name,
+        email: this.state.email,
+        password: this.state.password
+      })
+        .then((docRef) => {
+          console.log("Document written with ID: ", docRef);
+          docRef.update({ uid: docRef.id });
 
-          console.log('User registered successfully!', res);
+          this.props.navigation.navigate('Login', { email: this.state.email });
 
           this.setState({
             isLoading: false,
@@ -45,12 +50,9 @@ export default class Signup extends Component {
             email: '',
             password: ''
           });
-
-          this.props.navigation.navigate('Login');
         })
-        .catch(error => {
-          console.log('Register error = ', error);
-          this.setState({ errorMessage: error.message });
+        .catch(function (error) {
+          console.error("Error adding document: ", error);
         });
     }
   }
@@ -89,7 +91,7 @@ export default class Signup extends Component {
             />
             <Button
               color="#3740FE"
-              title="Signup"
+              title="Sign Up"
               onPress={() => this.registerUser()}
             />
           </View>

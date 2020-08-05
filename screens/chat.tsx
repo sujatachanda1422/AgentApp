@@ -49,7 +49,7 @@ export default class Chat extends Component {
 
   handleChange = key => val => {
     this.setState({ [key]: val });
-  };
+  }
 
   convertTime = time => {
     let d = new Date(time);
@@ -60,10 +60,29 @@ export default class Chat extends Component {
       result = d.getDay() + ' ' + d.getMonth() + ' ' + result;
     }
     return result;
-  };
+  }
+
+  setChatListDb() {
+    let batch = this.db.batch();
+
+    let fromRef = this.db.collection("chat_list").doc(this.state.person.from);
+    batch.set(fromRef, this.state.person);
+
+    let toRef = this.db.collection("chat_list").doc(this.state.person.to);
+    batch.set(toRef, this.state.person);
+
+    // Commit the batch
+    batch.commit().then(function () {
+      console.log('Chat db updated');
+    });
+  }
 
   sendMessage = async () => {
-    if (this.state.textMessage.length > 0) {
+    if (this.state.textMessage.length) {
+      if (!this.state.messageList.length) {
+        this.setChatListDb();
+      }
+
       let msgId = firebase
         .database()
         .ref('messages')

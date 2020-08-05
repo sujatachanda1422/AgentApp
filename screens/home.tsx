@@ -24,7 +24,9 @@ export default class Home extends Component {
   UNSAFE_componentWillMount() {
     firebase
       .firestore()
-      .collection("member_master").get().then((querySnapshot) => {
+      .collection("member_list")
+      .where('agentId', '==', this.props.route.params.user.uid)
+      .get().then((querySnapshot) => {
         console.log('Query - ', querySnapshot);
 
         querySnapshot.forEach((doc) => {
@@ -43,10 +45,10 @@ export default class Home extends Component {
         <FlatList
           data={this.state.memberList}
           width='100%'
-          keyExtractor={(index) => index.uid}
+          keyExtractor={(index) => index.mobile}
           renderItem={({ item }) =>
             <TouchableOpacity style={styles.item}
-              onPress={() => this.props.navigation.navigate('MemberChatList', { uid: item.uid })} >
+              onPress={() => this.props.navigation.navigate('MemberChatList', { mobile: item.mobile })} >
               <View style={styles.listItem}>
                 <Text style={styles.listText}>
                   {item.name}

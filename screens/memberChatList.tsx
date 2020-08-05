@@ -14,13 +14,14 @@ export default class MemberChatList extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    const memberId = this.props.route.params.uid;
+    const memberMobile = this.props.route.params.mobile;
 
     firebase
       .firestore()
-      .collection("member_master")
-      .doc(memberId)
-      .collection('chat_list').get().then((querySnapshot) => {
+      .collection("chat_list")
+      .doc(memberMobile)
+      .collection('members')
+      .get().then((querySnapshot) => {
         // console.log('Query - ', querySnapshot);
 
         querySnapshot.forEach((doc) => {
@@ -39,13 +40,13 @@ export default class MemberChatList extends Component {
         <FlatList
           data={this.state.memberList}
           width='100%'
-          keyExtractor={(index) => index.uid}
+          keyExtractor={(index) => index.mobile}
           renderItem={({ item }) =>
             <TouchableOpacity style={styles.item}
               onPress={() => this.props.navigation.navigate('Chat',
                 {
-                  from: item.uid,
-                  to: '1',
+                  from: this.props.route.params.mobile,
+                  to: item.mobile,
                   name: item.name
                 })} >
               <View style={styles.listItem}>
