@@ -8,6 +8,7 @@ import Home from './screens/home';
 import Chat from './screens/chat';
 import AddMember from './screens/addMember';
 import MemberChatList from './screens/memberChatList';
+import SubscriptionForm from './screens/subscriptionForm';
 
 const Stack = createStackNavigator();
 
@@ -39,9 +40,12 @@ export default function App() {
           name="Home"
           component={Home}
           options={({ navigation, route }) => ({
-            title: 'Member List',
+            title: 'Home',
             headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate('AddMember', { uid: route.params.user.uid })}>
+              <TouchableOpacity onPress={() => navigation.navigate('AddMember',
+                {
+                  uid: route.params.user.uid
+                })}>
                 <Text style={styles.addBtn}>
                   ADD
                 </Text>
@@ -66,6 +70,13 @@ export default function App() {
         <Stack.Screen
           name="Chat"
           component={Chat}
+        />
+        <Stack.Screen
+          name="SubscriptionForm"
+          options={{
+            title: 'Subscription Form'
+          }}
+          component={SubscriptionForm}
         />
       </Stack.Navigator>
     </NavigationContainer>

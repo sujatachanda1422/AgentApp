@@ -115,7 +115,7 @@ export default class Login extends Component {
                                 }}
                                 source={require('../images/chat.png')}
                             /> */}
-                            <Text style={{ position: 'absolute', fontSize: 20 }}>ChunMun</Text>
+                            <Text style={{ position: 'absolute', fontSize: 20 }}>ChunMun Agent</Text>
                         </View>
                         <TextInput
                             style={styles.inputStyle}
