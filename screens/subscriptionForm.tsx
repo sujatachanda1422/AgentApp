@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, TextInput, Button } from 'react-native';
 import firebase from '../database/firebase';
 import { Picker } from '@react-native-community/picker';
+import { CommonActions } from '@react-navigation/native';
 
 export default class SubscriptionForm extends Component {
   db: firebase.firestore.Firestore;
@@ -19,6 +20,12 @@ export default class SubscriptionForm extends Component {
   }
 
   UNSAFE_componentWillMount() {
+    this.setState({
+      package: this.props.route.params.subscriber.package_name,
+      mobile: this.props.route.params.subscriber.member_mobile,
+      name: this.props.route.params.subscriber.name
+    });
+
     this.db.collection("package_list").get().then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         let docData: firebase.firestore.DocumentData;
@@ -30,10 +37,6 @@ export default class SubscriptionForm extends Component {
           };
         });
       });
-
-      this.setState({ package: this.props.route.params.user.package_name });
-
-      console.log('State = ', this.state);
     })
       .catch(err => {
         console.error('Error in package fetch', err);
@@ -46,24 +49,15 @@ export default class SubscriptionForm extends Component {
     this.setState(state);
   }
 
-  registerUser = () => {
-    this.db.collection("agent_list").add({
-      name: this.state.name,
-      email: this.state.email,
-      password: this.state.password
+  acceptSubscription = () => {
+    console.log('State = ', this.state, this.props);
+
+    this.db.collection("subscription_list").doc(this.state.mobile)
+    .update({
+
     })
       .then((docRef) => {
-        console.log("Document written with ID: ", docRef);
-        docRef.update({ uid: docRef.id });
-
-        this.props.navigation.navigate('Login', { email: this.state.email });
-
-        this.setState({
-          isLoading: false,
-          name: '',
-          email: '',
-          password: ''
-        });
+        this.props.navigation.dispatch(CommonActions.goBack());
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);
@@ -77,14 +71,16 @@ export default class SubscriptionForm extends Component {
           <TextInput
             style={styles.inputStyle}
             placeholder="Mobile"
-            value={this.props.route.params.user.member_mobile}
-            onChangeText={(val) => this.updateInputVal(val, 'name')}
+            editable={false}
+            value={this.state.mobile}
+            onChangeText={(val) => this.updateInputVal(val, 'mobile')}
           />
           <TextInput
             style={styles.inputStyle}
             placeholder="Name"
-            value={this.props.route.params.user.member_mobile}
-            onChangeText={(val) => this.updateInputVal(val, 'email')}
+            editable={false}
+            value={this.state.name}
+            onChangeText={(val) => this.updateInputVal(val, 'name')}
           />
           <Picker
             selectedValue={this.state.package}
@@ -100,7 +96,7 @@ export default class SubscriptionForm extends Component {
           <Button
             color="#3740FE"
             title="Submit"
-            onPress={() => this.registerUser()}
+            onPress={() => this.acceptSubscription()}
           />
         </View>
       </View>
@@ -131,7 +127,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     padding: 10,
     alignSelf: "center",
-    backgroundColor: '#fff',
+    backgroundColor: '#bfbebe',
     borderRadius: 2
   },
   preloader: {

@@ -31,7 +31,7 @@ export default class Subscription extends Component {
 
         this.setState({ subscriptionList: [...this.subscriptionArray] });
 
-        console.log('Data = ', this.subscriptionArray);
+        // console.log('Data = ', this.subscriptionArray);
       });
   }
 
@@ -44,7 +44,11 @@ export default class Subscription extends Component {
           keyExtractor={(index) => index.member_mobile}
           renderItem={({ item }) =>
             <TouchableOpacity style={styles.item}
-              onPress={() => this.props.navigation.navigate('SubscriptionForm', { user: item })} >
+              onPress={() => this.props.navigation.navigate('SubscriptionForm',
+                {
+                  subscriber: item,
+                  user: this.props.user,
+                })} >
               <View style={styles.listItem}>
                 <Text style={styles.listText}>
                   {item.member_mobile}
