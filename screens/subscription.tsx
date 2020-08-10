@@ -20,6 +20,8 @@ export default class Subscription extends Component {
       .collection("subscription_list")
       .get()
       .then((querySnapshot) => {
+        console.log('subscription_list = ', querySnapshot);
+
         let data;
         querySnapshot.forEach((doc) => {
           data = doc.data();
@@ -30,36 +32,41 @@ export default class Subscription extends Component {
         });
 
         this.setState({ subscriptionList: [...this.subscriptionArray] });
-
-        // console.log('Data = ', this.subscriptionArray);
-      });
+      })
+      .catch(err => console.log('Error on subscription list fetch', err));
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={this.state.subscriptionList}
-          width='100%'
-          keyExtractor={(index) => index.member_mobile}
-          renderItem={({ item }) =>
-            <TouchableOpacity style={styles.item}
-              onPress={() => this.props.navigation.navigate('SubscriptionForm',
-                {
-                  subscriber: item,
-                  user: this.props.user,
-                })} >
-              <View style={styles.listItem}>
-                <Text style={styles.listText}>
-                  {item.member_mobile}
-                </Text>
-                <Text style={styles.listText}>Package: {item.package_name}</Text>
-              </View>
-              <View>
-                <AntDesign name="right" size={24} color="black" />
-              </View>
-            </TouchableOpacity>}
-        />
+        {this.state.subscriptionList.length > 1 &&
+          < FlatList
+            data={this.state.subscriptionList}
+            width='100%'
+            keyExtractor={(index) => index.member_mobile}
+            renderItem={({ item }) =>
+              <TouchableOpacity style={styles.item}
+                onPress={() => this.props.navigation.navigate('SubscriptionForm',
+                  {
+                    subscriber: item,
+                    user: this.props.user,
+                  })} >
+                <View style={styles.listItem}>
+                  <Text style={styles.listText}>
+                    {item.member_mobile}
+                  </Text>
+                  <Text style={styles.listText}>Package: {item.package_name}</Text>
+                </View>
+                <View>
+                  <AntDesign name="right" size={24} color="black" />
+                </View>
+              </TouchableOpacity>}
+          />
+        }
+
+        {!this.state.subscriptionList.length &&
+            <div>No subscription found.</div>
+        }
       </View>
     );
   }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, TextInput, Button } from 'react-native';
+import { StyleSheet, View, TextInput, Button, Alert } from 'react-native';
 import firebase from '../database/firebase';
 import { Picker } from '@react-native-community/picker';
 import { CommonActions } from '@react-navigation/native';
@@ -50,14 +50,34 @@ export default class SubscriptionForm extends Component {
   }
 
   acceptSubscription = () => {
-    console.log('State = ', this.state, this.props);
+    const selectedPackage = this.state.packages.filter(pkg => pkg.name === this.state.package)[0];
+    const validity = selectedPackage.validity | 1;
+    const remainingChat = selectedPackage.chatNumber;
+
+    const newDoc = {
+      accepted_by: this.props.route.params.user.email,
+      status: 'accepted',
+      package_name: this.state.package,
+      request_date_time: new Date().toLocaleDateString("en-US"),
+      expiry_date: validity * 30,
+      remaining_chat: remainingChat
+    };
+
+    // console.log('State = ', newDoc, this.state, this.props);
 
     this.db.collection("subscription_list").doc(this.state.mobile)
-    .update({
+      .update(newDoc)
+      .then(_ => {
+        alert('Thank you for accepting the request');
 
-    })
-      .then((docRef) => {
-        this.props.navigation.dispatch(CommonActions.goBack());
+        Alert.alert('', 'Thank you for accepting the request',
+          [
+            {
+              text: 'OK',
+              onPress: () => this.props.navigation.dispatch(CommonActions.goBack())
+            }
+          ]);
+
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);
