@@ -39,7 +39,7 @@ export default class Subscription extends Component {
   render() {
     return (
       <View style={styles.container}>
-        {this.state.subscriptionList.length > 1 &&
+        {this.state.subscriptionList.length &&
           < FlatList
             data={this.state.subscriptionList}
             width='100%'
