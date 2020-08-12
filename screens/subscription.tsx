@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import firebase from '../database/firebase';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -10,11 +10,16 @@ export default class Subscription extends Component {
     super();
 
     this.state = {
+      isLoading: false,
       subscriptionList: []
     }
   }
 
   UNSAFE_componentWillMount() {
+    this.setState({
+      isLoading: true
+    });
+
     firebase
       .firestore()
       .collection("subscription_list")
@@ -31,12 +36,27 @@ export default class Subscription extends Component {
           }
         });
 
-        this.setState({ subscriptionList: [...this.subscriptionArray] });
+        this.setState({
+          isLoading: false,
+          subscriptionList: [...this.subscriptionArray]
+        });
       })
-      .catch(err => console.log('Error on subscription list fetch', err));
+      .catch(err => {
+        console.log('Error on subscription list fetch', err);
+        this.setState({
+          isLoading: false
+        });
+      });
   }
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.preloader}>
+          <ActivityIndicator size="large" color="#9E9E9E" />
+        </View>
+      )
+    }
     return (
       <View style={styles.container}>
         {this.state.subscriptionList.length &&
@@ -49,7 +69,7 @@ export default class Subscription extends Component {
                 onPress={() => this.props.navigation.navigate('SubscriptionForm',
                   {
                     subscriber: item,
-                    user: this.props.user,
+                    user: this.props.user
                   })} >
                 <View style={styles.listItem}>
                   <Text style={styles.listText}>
@@ -65,7 +85,7 @@ export default class Subscription extends Component {
         }
 
         {!this.state.subscriptionList.length &&
-            <div>No subscription found.</div>
+          <div>No subscription found.</div>
         }
       </View>
     );
@@ -98,5 +118,15 @@ const styles = StyleSheet.create({
   listText: {
     textTransform: 'capitalize',
     lineHeight: 30
+  },
+  preloader: {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff'
   }
 });

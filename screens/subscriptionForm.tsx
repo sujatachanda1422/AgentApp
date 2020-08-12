@@ -59,7 +59,7 @@ export default class SubscriptionForm extends Component {
       status: 'accepted',
       package_name: this.state.package,
       request_date_time: new Date().toLocaleDateString("en-US"),
-      expiry_date: validity * 30,
+      expiry_date: new Date(new Date().getTime() + ((validity * 30) * 24 * 60 * 60 * 1000)).toLocaleDateString("en-US"),
       remaining_chat: remainingChat
     };
 
