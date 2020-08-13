@@ -5,7 +5,6 @@
     "name": "MyChat",
     "slug": "MyChat",
     "version": "1.0.0",
-    "sdkVersion": "38.0.0",
     "assetBundlePatterns": [
       "**/*"
     ],
