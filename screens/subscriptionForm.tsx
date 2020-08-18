@@ -6,6 +6,7 @@ import { CommonActions } from '@react-navigation/native';
 
 export default class SubscriptionForm extends Component {
   db: firebase.firestore.Firestore;
+  packagesArr: Array<Object> = [];
 
   constructor() {
     super();
@@ -20,22 +21,16 @@ export default class SubscriptionForm extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    this.setState({
-      package: this.props.route.params.subscriber.package_name,
-      mobile: this.props.route.params.subscriber.member_mobile,
-      name: this.props.route.params.subscriber.name
-    });
-
     this.db.collection("package_list").get().then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        let docData: firebase.firestore.DocumentData;
-        docData = doc.data();
+        this.packagesArr.push(doc.data());
+      });
 
-        this.setState(prevState => {
-          return {
-            packages: [...prevState.packages, docData],
-          };
-        });
+      this.setState({
+        packages: [...this.packagesArr],
+        package: this.props.route.params.subscriber.package_name,
+        mobile: this.props.route.params.subscriber.member_mobile,
+        name: this.props.route.params.subscriber.name
       });
     })
       .catch(err => {
@@ -58,26 +53,25 @@ export default class SubscriptionForm extends Component {
       accepted_by: this.props.route.params.user.email,
       status: 'accepted',
       package_name: this.state.package,
-      request_date_time: new Date().toLocaleDateString("en-US"),
       expiry_date: new Date(new Date().getTime() + ((validity * 30) * 24 * 60 * 60 * 1000)).toLocaleDateString("en-US"),
-      remaining_chat: remainingChat
+      remaining_chat: firebase.firestore.FieldValue.increment(remainingChat)
     };
-
-    // console.log('State = ', newDoc, this.state, this.props);
 
     this.db.collection("subscription_list").doc(this.state.mobile)
       .update(newDoc)
       .then(_ => {
-        alert('Thank you for accepting the request');
+        console.log('Thank you for accepting the request');
 
         Alert.alert('', 'Thank you for accepting the request',
           [
             {
               text: 'OK',
-              onPress: () => this.props.navigation.dispatch(CommonActions.goBack())
+              onPress: () => this.props.navigation.navigate('Subscription',
+                {
+                  user: this.props.route.params.user
+                })
             }
           ]);
-
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);

@@ -20,13 +20,19 @@ export default class Subscription extends Component {
       isLoading: true
     });
 
+    this.getList();
+  }
+
+  UNSAFE_componentWillReceiveProps() {
+    this.getList();
+  }
+
+  getList() {
     firebase
       .firestore()
       .collection("subscription_list")
       .get()
       .then((querySnapshot) => {
-        console.log('subscription_list = ', querySnapshot);
-
         let data;
         querySnapshot.forEach((doc) => {
           data = doc.data();
@@ -42,7 +48,7 @@ export default class Subscription extends Component {
         });
       })
       .catch(err => {
-        console.log('Error on subscription list fetch', err);
+        console.log('Error on subscription list fetch', this.state, err);
         this.setState({
           isLoading: false
         });
@@ -59,7 +65,7 @@ export default class Subscription extends Component {
     }
     return (
       <View style={styles.container}>
-        {this.state.subscriptionList.length &&
+        {this.state.subscriptionList.length > 0 &&
           < FlatList
             data={this.state.subscriptionList}
             width='100%'
@@ -85,7 +91,7 @@ export default class Subscription extends Component {
         }
 
         {!this.state.subscriptionList.length &&
-          <div>No subscription found.</div>
+          <Text style={styles.noList}>No subscription found.</Text>
         }
       </View>
     );
@@ -128,5 +134,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff'
+  },
+  noList: {
+    fontSize: 18,
+    padding: 20
   }
 });
