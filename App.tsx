@@ -30,11 +30,14 @@ export default function App() {
           name="Login"
           component={Login}
           options={{
-            headerShown: false,
+            headerShown: false
           }}
         />
         <Stack.Screen
           name="Register"
+          options={{
+            title: 'Sign Up'
+          }}
           component={Register}
         />
         <Stack.Screen

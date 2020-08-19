@@ -21,11 +21,14 @@ export default class Signup extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    user = this.props.route.params.user;
-    user.confirmPassword = user.password;
-    console.log('Profile', user);
+    if (this.props.route.params) {
+      user = this.props.route.params.user;
+      console.log('Profile', user);
+    }
 
     if (user) {
+      user.confirmPassword = user.password;
+
       this.setState(user);
 
       this.props.navigation.setOptions({
