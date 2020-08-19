@@ -17,6 +17,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login"
         screenOptions={{
+          headerTintColor: '#fff',
           headerTitleAlign: 'center',
           headerTitleStyle: {
             color: '#fff'
@@ -39,19 +40,6 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={Home}
-          options={({ navigation, route }) => ({
-            title: 'Home',
-            headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate('AddMember',
-                {
-                  uid: route.params.user.uid
-                })}>
-                <Text style={styles.addBtn}>
-                  ADD
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
         />
         <Stack.Screen
           name="AddMember"

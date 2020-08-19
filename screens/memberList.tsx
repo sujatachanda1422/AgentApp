@@ -39,7 +39,7 @@ export default class MemberList extends Component {
           keyExtractor={(index) => index.mobile}
           renderItem={({ item }) =>
             <TouchableOpacity style={styles.item}
-              onPress={() => this.props.navigation.navigate('MemberChatList', { mobile: item.mobile })} >
+              onPress={() => this.props.navigation.navigate('MemberChatList', { user: item })} >
               <View style={styles.listItem}>
                 <Text style={styles.listText}>
                   {item.name}

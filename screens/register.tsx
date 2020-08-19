@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, ActivityIndicator, ImageBackground } from 'react-native';
+import { StyleSheet, View, TextInput, Button, Alert, ActivityIndicator, ImageBackground } from 'react-native';
 import firebase from '../database/firebase';
-
+let user = null;
 const image = require("../images/bkg.jpg");
 
 export default class Signup extends Component {
@@ -13,10 +13,25 @@ export default class Signup extends Component {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
       isLoading: false
     };
 
     this.db = firebase.firestore();
+  }
+
+  UNSAFE_componentWillMount() {
+    user = this.props.route.params.user;
+    user.confirmPassword = user.password;
+    console.log('Profile', user);
+
+    if (user) {
+      this.setState(user);
+
+      this.props.navigation.setOptions({
+        title: 'Profile'
+      });
+    }
   }
 
   updateInputVal = (val, prop) => {
@@ -25,36 +40,77 @@ export default class Signup extends Component {
     this.setState(state);
   }
 
-  registerUser = () => {
-    if (this.state.email === '' && this.state.password === '') {
-      Alert.alert('Enter details to signup!')
-    } else {
-      this.setState({
-        isLoading: true
-      });
+  validateForm() {
+    let valid = true;
+    const mailformat = /\S+@\S+\.\S+/;
 
-      this.db.collection("agent_list").add({
-        name: this.state.name,
-        email: this.state.email,
-        password: this.state.password
-      })
-        .then((docRef) => {
-          console.log("Document written with ID: ", docRef);
-          docRef.update({ uid: docRef.id });
-
-          this.props.navigation.navigate('Login', { email: this.state.email });
-
-          this.setState({
-            isLoading: false,
-            name: '',
-            email: '',
-            password: ''
-          });
-        })
-        .catch(function (error) {
-          console.error("Error adding document: ", error);
-        });
+    if (this.state.email === '' ||
+      this.state.password === '' || this.state.confirmPassword === '') {
+      valid = false;
+      Alert.alert('', 'Enter all the details to signup!');
+    } else if (!this.state.email.match(mailformat)) {
+      valid = false;
+      Alert.alert('', 'Please enter a valid email');
+    } else if (this.state.password !== this.state.confirmPassword) {
+      valid = false;
+      Alert.alert('', 'Password does not match');
     }
+
+    return valid;
+  }
+
+  registerUser = () => {
+    if (!this.validateForm()) {
+      return;
+    }
+
+    this.setState({
+      isLoading: true
+    });
+
+    this.db.collection("agent_list").add({
+      name: this.state.name,
+      email: this.state.email,
+      password: this.state.password
+    })
+      .then((docRef) => {
+        console.log("Document written with ID: ", docRef);
+        docRef.update({ uid: docRef.id });
+
+        this.props.navigation.navigate('Login', { email: this.state.email });
+
+        this.setState({
+          isLoading: false,
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        });
+      })
+      .catch(function (error) {
+        console.error("Error adding document: ", error);
+      });
+  }
+
+  updateUser = () => {
+    if (!this.validateForm()) {
+      return;
+    }
+    this.setState({
+      isLoading: true
+    });
+
+    this.db.collection("agent_list").doc(user.uid).update({
+      name: this.state.name,
+      email: this.state.email,
+      password: this.state.password
+    })
+      .then(_ => {
+        Alert.alert('', 'Profile updated');
+      })
+      .catch(function (error) {
+        console.error("Error adding document: ", error);
+      });
   }
 
   render() {
@@ -89,11 +145,28 @@ export default class Signup extends Component {
               maxLength={15}
               secureTextEntry={true}
             />
-            <Button
-              color="#3740FE"
-              title="Sign Up"
-              onPress={() => this.registerUser()}
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Confirm Password"
+              value={this.state.confirmPassword}
+              onChangeText={(val) => this.updateInputVal(val, 'confirmPassword')}
+              maxLength={15}
+              secureTextEntry={true}
             />
+            {user === null &&
+              <Button
+                color="#3740FE"
+                title="Sign Up"
+                onPress={() => this.registerUser()}
+              />
+            }
+            {user !== null &&
+              <Button
+                color="#3740FE"
+                title="Update"
+                onPress={() => this.updateUser()}
+              />
+            }
           </View>
         </ImageBackground>
       </View>
