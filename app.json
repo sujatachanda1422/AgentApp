@@ -8,6 +8,11 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "splash": {
+      "image": "./images/screen.png",
+      "backgroundColor": "#5dbcd2",
+      "resizeMode": "cover"
+    },
     "description": "",
     "android": {
       "package": "com.sujata1422.MyChat"

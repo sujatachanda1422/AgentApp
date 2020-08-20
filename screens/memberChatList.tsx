@@ -21,11 +21,27 @@ export default class MemberChatList extends Component {
     }
   }
 
+  getAge(dob: string | number | Date) {
+    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
+  }
+
   UNSAFE_componentWillMount() {
-    const { name, mobile } = this.props.route.params.user;
+    const { name, mobile, city, dob } = this.props.route.params.user;
 
     this.props.navigation.setOptions({
-      title: name
+      headerTitle: () => {
+        return (
+          <View>
+            <Text style={{ fontSize: 22, color: '#fff' }}>{name}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <Text style={{ color: '#fff' }}>{city}</Text>
+              {(dob !== '' && dob != null) &&
+                <Text style={{ color: '#fff' }}>, {this.getAge(dob)}</Text>
+              }
+            </View>
+          </View>
+        )
+      }
     });
 
     firebase
@@ -34,60 +50,60 @@ export default class MemberChatList extends Component {
       .doc(mobile)
       .collection('members')
       .get().then((querySnapshot) => {
-        // console.log('Query - ', querySnapshot);
-
         querySnapshot.forEach((doc) => {
           this.memberArray.push(doc.data());
         });
 
         this.setState({ memberList: [...this.memberArray] });
 
-        console.log('Data = ', this.memberArray);
+        // console.log('Data = ', this.memberArray);
       });
-  }
-
-  getAge(dob: string | number | Date) {
-    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={this.state.memberList}
-          width='100%'
-          keyExtractor={(index) => index.mobile}
-          renderItem={({ item }) =>
-            <TouchableOpacity style={styles.item}
-              onPress={() => this.props.navigation.navigate('Chat',
-                {
-                  from: this.props.route.params.user.mobile,
-                  to: item.mobile,
-                  name: item.name
-                })} >
-              <Image source={(item.image && item.image !== '') ?
-                { uri: item.image } : userImg} style={styles.profileImg} />
-              <View style={styles.listItem}>
-                <Text style={styles.listText}>
-                  {item.name}
-                </Text>
-                <View style={styles.listDesc}>
-                  <Text style={{ textTransform: 'capitalize' }}>{item.city}</Text>
-                  {(item.dob != null && item.dob !== '') &&
-                    <View style={{ flexDirection: 'row' }}>
-                      <Text>,</Text>
-                      <Text style={{ paddingHorizontal: 5 }}>
-                        {this.getAge(item.dob)}
-                      </Text>
-                    </View>
-                  }
+        {this.state.memberList.length > 0 &&
+          <FlatList
+            data={this.state.memberList}
+            width='100%'
+            keyExtractor={(index) => index.mobile}
+            renderItem={({ item }) =>
+              <TouchableOpacity style={styles.item}
+                onPress={() => this.props.navigation.navigate('Chat',
+                  {
+                    from: this.props.route.params.user.mobile,
+                    to: item.mobile,
+                    user: item
+                  })} >
+                <Image source={(item.image && item.image !== '') ?
+                  { uri: item.image } : userImg} style={styles.profileImg} />
+                <View style={styles.listItem}>
+                  <Text style={styles.listText}>
+                    {item.name}
+                  </Text>
+                  <View style={styles.listDesc}>
+                    <Text style={{ color: '#000', textTransform: 'capitalize' }}>City - {item.city}</Text>
+                    {(item.dob != null && item.dob !== '') &&
+                      <View style={{ flexDirection: 'row' }}>
+                        <Text>,</Text>
+                        <Text style={{ color: '#000', paddingHorizontal: 5 }}>
+                          Age - {this.getAge(item.dob)}
+                        </Text>
+                      </View>
+                    }
+                  </View>
                 </View>
-              </View>
-              <View>
-                <AntDesign name="right" size={24} color="black" />
-              </View>
-            </TouchableOpacity>}
-        />
+                <View>
+                  <AntDesign name="right" size={24} color="#dcdcdc" />
+                </View>
+              </TouchableOpacity>}
+          />
+        }
+        {this.state.memberList.length === 0 &&
+          <Text style={{ textAlign: 'center', fontSize: 20, margin: 20 }}>
+            No member found</Text>
+        }
       </View>
     );
   }
@@ -101,6 +117,7 @@ const styles = StyleSheet.create({
   },
   item: {
     paddingHorizontal: 10,
+    paddingVertical: 8,
     borderColor: '#868181',
     borderWidth: 1,
     marginLeft: 10,
@@ -111,6 +128,11 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  listText: {
+    fontSize: 20,
+    color: 'green',
+    marginBottom: 3
   },
   listItem: {
     flex: 1,

@@ -16,10 +16,6 @@ export default class Subscription extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    this.setState({
-      isLoading: true
-    });
-
     this.getList();
   }
 
@@ -28,6 +24,10 @@ export default class Subscription extends Component {
   }
 
   getList() {
+    this.setState({
+      isLoading: true
+    });
+
     firebase
       .firestore()
       .collection("subscription_list")

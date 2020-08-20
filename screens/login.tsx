@@ -66,22 +66,25 @@ export default class Login extends Component {
                         memberDetails = doc.data();
                     });
 
-                    console.log('Query - ', memberDetails);
-
                     this.setState({
                         isLoading: false
                     });
 
                     if (!memberDetails) {
-                        console.error('Mobile mumber not found');
+                        Alert.alert('', 'Email not found');
                         return;
                     }
 
-                    if (this.state.password === memberDetails.password) {
+                    if (this.state.password == memberDetails.password) {
                         this.props.navigation.navigate('Home', { user: memberDetails });
                     } else {
-                        console.error('Wrong pin')
+                        Alert.alert('', 'Wrong password, please try again');
                     }
+
+                    this.setState({
+                        email: '',
+                        password: ''
+                    });
                 })
                 .catch(error => {
                     console.log('Login error = ', error);

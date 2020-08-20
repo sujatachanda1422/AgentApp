@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Register from './screens/register';
@@ -9,8 +9,35 @@ import Chat from './screens/chat';
 import AddMember from './screens/addMember';
 import MemberChatList from './screens/memberChatList';
 import SubscriptionForm from './screens/subscriptionForm';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { Entypo, AntDesign } from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
+
+function getHeader(route, navigation) {
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'MemberList';
+
+  switch (routeName) {
+    case 'MemberList':
+      return (
+        <TouchableOpacity onPress={() => navigation.navigate('AddMember',
+          { uid: route.params.user.uid }
+        )}>
+          <Entypo name="add-user" size={24} color="white" style={{ marginRight: 20 }} />
+        </TouchableOpacity>
+      )
+    case 'Subscription':
+      return (
+        <TouchableOpacity onPress={() => navigation.navigate('AddMember',
+          { uid: route.params.user.uid }
+        )}>
+          {/* <Entypo name="add-user" size={24} color="white" style={{ marginRight: 20 }} /> */}
+        </TouchableOpacity>
+      )
+    case 'Settings':
+      return null;
+  }
+}
 
 export default function App() {
   return (
@@ -43,6 +70,11 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={Home}
+          options={({ route, navigation }) => ({
+            title: 'Hi, ' + route.params.user.name,
+            headerLeft: false,
+            headerRight: () => getHeader(route, navigation)
+          })}
         />
         <Stack.Screen
           name="AddMember"

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Fontisto } from '@expo/vector-icons';
+import { Fontisto, Entypo } from '@expo/vector-icons';
 
 export default class Settings extends Component {
   constructor() {
@@ -20,6 +20,14 @@ export default class Settings extends Component {
           <Fontisto name="person" size={24} color="black" />
           <Text style={styles.listText}>Profile</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.listItem}
+          onPress={() => this.props.navigation.navigate('AddMember',
+            { uid: this.props.route.params.user.uid })}>
+          <Entypo name="add-user" size={24} color="black" />
+          <Text style={styles.listText}>Add member</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.listItem}
           onPress={() => this.props.navigation.navigate('Login')}>
           <Fontisto name="power" size={24} color="black" />

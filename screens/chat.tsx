@@ -6,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  Dimensions,
   Image,
   StyleSheet
 } from 'react-native';
 import firebase from 'firebase';
+
+const userImg = require("../images/user.jpg");
 
 export default class Chat extends Component {
   constructor(props) {
@@ -25,9 +26,27 @@ export default class Chat extends Component {
     };
   }
 
+  getAge(dob: string | number | Date) {
+    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
+  }
+
   componentDidMount() {
+    const { name, city, dob } = this.props.route.params.user;
+
     this.props.navigation.setOptions({
-      title: this.props.route.params.name
+      headerTitle: () => {
+        return (
+          <View>
+            <Text style={{ fontSize: 22, color: '#fff' }}>{name}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <Text style={{ color: '#fff' }}>{city}</Text>
+              {(dob !== '' && dob != null) &&
+                <Text style={{ color: '#fff' }}>, {this.getAge(dob)}</Text>
+              }
+            </View>
+          </View>
+        )
+      }
     })
   }
 
@@ -56,8 +75,8 @@ export default class Chat extends Component {
     let c = new Date();
     let result = (d.getHours() < 10 ? '0' : '') + d.getHours() + ':';
     result += (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
-    if (c.getDay() !== d.getDay()) {
-      result = d.getDay() + ' ' + d.getMonth() + ' ' + result;
+    if (c.getDate() !== d.getDate()) {
+      result = d.getDate() + '/' + (d.getMonth() + 1) + ' ' + result;
     }
     return result;
   }
@@ -110,42 +129,82 @@ export default class Chat extends Component {
 
       this.setState({ textMessage: '' });
     }
-  };
+  }
 
-  renderRow = ({ item }) => {
+  isSenderSame = (currentMessage, prevMessage) => {
+    return prevMessage && (currentMessage.from === prevMessage.from);
+  }
+
+  renderRow = ({ item, index }) => {
+    const isSenderSame = this.isSenderSame(item, this.state.messageList[index - 1]);
+    const isFromLoggedInUser = item.from === this.state.person.from;
+
     return (
+      // <View
+      //   style={{
+      //     flexDirection: 'row',
+      //     width: '70%',
+      //     alignSelf: item.from === this.state.person.from ? 'flex-end' : 'flex-start',
+      //     backgroundColor: item.from === this.state.person.from ? '#00A398' : '#7cb342',
+      //     borderRadius: 10,
+      //     marginBottom: 10,
+      //   }}>
+      //   <Text style={{ color: '#fff', padding: 7, fontSize: 16 }}>
+      //     {item.message}
+      //   </Text>
+      //   <Text style={{ color: '#eee', padding: 3, fontSize: 12 }}>
+      //     {this.convertTime(item.time)}
+      //   </Text>
+      // </View>
+
       <View
         style={{
-          flexDirection: 'row',
-          width: '70%',
-          alignSelf: item.from === this.state.person.from ? 'flex-end' : 'flex-start',
-          backgroundColor: item.from === this.state.person.from ? '#00A398' : '#7cb342',
-          borderRadius: 10,
-          marginBottom: 10,
+          flexDirection: 'column',
+          maxWidth: '70%',
+          minWidth: 100,
+          alignSelf: isFromLoggedInUser ? 'flex-end' : 'flex-start',
+          marginBottom: 5
         }}>
-        <Text style={{ color: '#fff', padding: 7, fontSize: 16 }}>
-          {item.message}
-        </Text>
-        <Text style={{ color: '#eee', padding: 3, fontSize: 12 }}>
-          {this.convertTime(item.time)}
-        </Text>
+        {!isSenderSame &&
+          <Image source={(item.image && item.image !== '') ? { uri: item.image } : userImg}
+            style={[styles.profileImg,
+            { alignSelf: isFromLoggedInUser ? 'flex-end' : 'flex-start' }]} />
+        }
+
+        <View style={[styles.testWrapper,
+        {
+          backgroundColor: isFromLoggedInUser ? '#00A398' : '#7cb342'
+        }]}>
+          <Text style={[styles.textItem, {
+            paddingRight: isFromLoggedInUser ? 35 : 0,
+            paddingLeft: !isFromLoggedInUser ? 35 : 0
+          }]}>
+            {item.message}
+          </Text>
+          <Text style={{
+            color: '#e6e6e6', marginTop: 0, fontSize: 12,
+            alignSelf: isFromLoggedInUser ? 'flex-end' : 'flex-start'
+          }}>
+            {this.convertTime(item.time)}
+          </Text>
+        </View>
       </View>
     );
   };
 
   render() {
-    // let { height } = Dimensions.get('window');
-
     return (
       <View style={{ display: "flex", flexDirection: 'column', height: '100%' }}>
-        <ScrollView style={{ flex: 1 }}>
-          <FlatList
-            style={{ padding: 10 }}
-            data={this.state.messageList}
-            renderItem={this.renderRow}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </ScrollView>
+        <FlatList
+          contentContainerStyle={{ paddingVertical: 10 }}
+          style={{ paddingHorizontal: 10 }}
+          data={this.state.messageList}
+          ref={ref => this.flatList = ref}
+          onContentSizeChange={() => this.flatList.scrollToEnd({animated: true})}
+          onLayout={() => this.flatList.scrollToEnd({animated: true})}
+          renderItem={this.renderRow}
+          keyExtractor={(item, index) => index.toString()}
+        />
         <View
           style={{
             flexDirection: 'row',
@@ -182,5 +241,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     color: '#000000',
     flex: 1
+  },
+  profileImg: {
+    width: 30,
+    height: 30,
+    borderRadius: 30,
+    margin: 5
+  },
+  testWrapper: {
+    marginHorizontal: 10,
+    borderRadius: 5,
+    padding: 5
+  },
+  textItem: {
+    color: '#fff',
+    fontSize: 16
   }
 });

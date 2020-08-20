@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import firebase from '../database/firebase';
+const userImg = require("../images/user.jpg");
 import { AntDesign } from '@expo/vector-icons';
 
 export default class MemberList extends Component {
@@ -14,7 +15,21 @@ export default class MemberList extends Component {
     }
   }
 
+  UNSAFE_componentWillReceiveProps() {
+    this.getMemberList();
+  }
+
   UNSAFE_componentWillMount() {
+    const user = this.props.user;
+
+    this.getMemberList();
+  }
+
+  getAge(dob: string | number | Date) {
+    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
+  }
+
+  getMemberList() {
     firebase
       .firestore()
       .collection("member_list")
@@ -26,7 +41,7 @@ export default class MemberList extends Component {
 
         this.setState({ memberList: [...this.memberArray] });
 
-        console.log('Data = ', this.memberArray);
+        // console.log('Data = ', this.memberArray);
       });
   }
 
@@ -40,16 +55,28 @@ export default class MemberList extends Component {
           renderItem={({ item }) =>
             <TouchableOpacity style={styles.item}
               onPress={() => this.props.navigation.navigate('MemberChatList', { user: item })} >
+              <View>
+                <Image source={(item.image && item.image !== '') ?
+                  { uri: item.image } : userImg} style={styles.profileImg} />
+              </View>
               <View style={styles.listItem}>
-                <Text style={styles.listText}>
+                <Text style={[styles.listText, { fontSize: 20, color: 'blue' }]}>
                   {item.name}
                 </Text>
-                <Text style={styles.listText}>City: {item.city}</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={styles.listText}>City - {item.city}</Text>
+                  {item.dob != null &&
+                    <Text style={styles.listText}>
+                      , Age - {this.getAge(item.dob)}
+                    </Text>
+                  }
+                </View>
               </View>
               <View>
                 <AntDesign name="right" size={24} color="black" />
               </View>
-            </TouchableOpacity>}
+            </TouchableOpacity>
+          }
         />
       </View>
     );
@@ -64,6 +91,7 @@ const styles = StyleSheet.create({
   },
   item: {
     paddingHorizontal: 10,
+    paddingVertical: 10,
     borderColor: '#868181',
     borderWidth: 1,
     marginLeft: 10,
@@ -81,6 +109,13 @@ const styles = StyleSheet.create({
   },
   listText: {
     textTransform: 'capitalize',
-    lineHeight: 30
+    lineHeight: 30,
+    color: '#000'
+  },
+  profileImg: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    marginRight: 10
   }
 });
