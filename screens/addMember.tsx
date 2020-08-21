@@ -15,6 +15,10 @@ import { RadioButton } from 'react-native-paper';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import ImagePicker from 'react-native-image-picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import AsyncStorage from '@react-native-community/async-storage';
+import { Picker } from '@react-native-community/picker';
+
+let cityList: firebase.firestore.DocumentData[] = [];
 
 export default class AddMember extends Component {
   db: firebase.firestore.Firestore;
@@ -30,7 +34,7 @@ export default class AddMember extends Component {
       mobile: null,
       name: '',
       gender: 'female',
-      city: '',
+      city: 'Kolkata',
       image: null,
       dob: '',
       verify: false,
@@ -42,8 +46,34 @@ export default class AddMember extends Component {
     this.db = firebase.firestore();
   }
 
-  UNSAFE_componentWillMount() {
-    this.setState({ agentId: this.props.route.params.uid });
+  async getCityList() {
+    cityList = [];
+
+    await this.db.collection("city_list").get().then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        cityList.push(doc.data());
+      });
+    });
+  }
+
+  UNSAFE_componentWillReceiveProps() {
+    if (this.props.route.params.uid) {
+      this.setState({ agentId: this.props.route.params.uid });
+    }
+  }
+
+  async UNSAFE_componentWillMount() {
+    this.setState({ isLoading: true });
+    await this.getCityList();
+
+    let details = await AsyncStorage.getItem('loggedInMemberDetails');
+
+    if (details) {
+      details = JSON.parse(details);
+      this.setState({ agentId: details.uid });
+    }
+
+    this.setState({ isLoading: false });
   }
 
   updateInputVal = (val: any, prop: React.ReactText) => {
@@ -128,16 +158,41 @@ export default class AddMember extends Component {
     });
   }
 
-  addMember = () => {
+  checkDuplicateMobile() {
+    return this.db.collection("member_list")
+      .doc(this.state.mobile).get().then(doc => {
+        return doc.exists;
+      });
+  }
+
+  addMember = async () => {
     if (!this.state.dob) {
       Alert.alert('', 'Please enter date of the birth');
       return;
     }
 
+    const isDuplicate = await this.checkDuplicateMobile();
+
+    if(isDuplicate) {
+      Alert.alert('', 'Mobile number already exists, please use another');
+      return;
+    }
+
     this.db.collection("member_list")
       .doc(this.state.mobile)
-      .set(this.state)
-      .then((_: any) => {
+      .set({
+        mobile: this.state.mobile,
+        name: this.state.name,
+        gender: this.state.gender,
+        city: this.state.city,
+        image: this.state.image,
+        dob: this.state.dob,
+        agentId: this.state.agentId
+      })
+      .then(doc => {
+        console.log('Doc  === ', doc);
+        return;
+
         this.props.navigation.navigate('Home', {
           screen: 'MemberList',
           params: { user: true }
@@ -198,12 +253,17 @@ export default class AddMember extends Component {
                   <RadioButton.Item label="Female" value="female" color='blue' style={styles.radioBtn} labelStyle={styles.radioBtnLbl} />
                 </View>
               </RadioButton.Group>
-              <TextInput
-                style={[styles.inputStyle, { marginBottom: 35 }]}
-                placeholder="City"
-                value={this.state.city}
-                onChangeText={(val) => this.updateInputVal(val, 'city')}
-              />
+
+              <Picker
+                selectedValue={this.state.city}
+                style={styles.dropDown}
+                onValueChange={(itemValue) => this.setState({ city: itemValue })}
+              >
+                {cityList.map(item => {
+                  return <Picker.Item key={item.name} label={item.name} value={item.name} />
+                })
+                }
+              </Picker>
 
               <Button
                 color="#3740FE"
@@ -268,6 +328,12 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#fff',
     borderRadius: 2
+  },
+  dropDown: {
+    height: 50,
+    width: '100%',
+    marginBottom: 20,
+    backgroundColor: '#fff'
   },
   radio: {
     flexDirection: 'row',

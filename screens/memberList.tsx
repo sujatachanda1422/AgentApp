@@ -20,8 +20,6 @@ export default class MemberList extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    const user = this.props.user;
-
     this.getMemberList();
   }
 
@@ -35,6 +33,8 @@ export default class MemberList extends Component {
       .collection("member_list")
       .where('agentId', '==', this.props.user.uid)
       .get().then((querySnapshot) => {
+        this.memberArray = [];
+
         querySnapshot.forEach((doc) => {
           this.memberArray.push(doc.data());
         });

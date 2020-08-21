@@ -34,6 +34,9 @@ export default class Subscription extends Component {
       .get()
       .then((querySnapshot) => {
         let data;
+
+        this.subscriptionArray = [];
+
         querySnapshot.forEach((doc) => {
           data = doc.data();
 
@@ -78,7 +81,7 @@ export default class Subscription extends Component {
                     user: this.props.user
                   })} >
                 <View style={styles.listItem}>
-                  <Text style={styles.listText}>
+                  <Text style={[styles.listText, { fontSize: 20, color: 'blue' }]}>
                     {item.member_mobile}
                   </Text>
                   <Text style={styles.listText}>Package: {item.package_name}</Text>
@@ -119,11 +122,13 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flex: 1,
-    marginBottom: 6
+    marginBottom: 6,
+    paddingVertical: 5
   },
   listText: {
     textTransform: 'capitalize',
-    lineHeight: 30
+    lineHeight: 30,
+    color: '#000'
   },
   preloader: {
     left: 0,

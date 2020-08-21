@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import firebase from '../database/firebase';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import AsyncStorage from '@react-native-community/async-storage';
 
 let user: {} | null = null;
 const image = require("../images/bkg.jpg");
 
-export default class Signup extends Component {
+export default class Register extends Component {
   db: firebase.firestore.Firestore;
 
   constructor() {
@@ -33,13 +34,11 @@ export default class Signup extends Component {
   UNSAFE_componentWillMount() {
     if (this.props.route.params) {
       user = this.props.route.params.user;
-      console.log('Profile', user);
-    }
 
-    if (user) {
-      user.confirmPassword = user.password;
+      let userObj = { ...user };
+      userObj.confirmPassword = user.password;
 
-      this.setState(user);
+      this.setState(userObj);
 
       this.props.navigation.setOptions({
         title: 'Profile'
@@ -119,7 +118,23 @@ export default class Signup extends Component {
       password: this.state.password
     })
       .then(_ => {
-        Alert.alert('', 'Profile updated');
+        this.setState({
+          isLoading: false
+        });
+
+        const jsonValue = JSON.stringify({
+          name: this.state.name,
+          email: this.state.email,
+          password: this.state.password,
+          uid: user.uid
+        });
+
+        this.props.navigation.navigate('Home', {
+          screen: 'Settings',
+          params: { name: this.state.name }
+        });
+
+        AsyncStorage.setItem('loggedInMemberDetails', jsonValue);
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);

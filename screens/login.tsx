@@ -11,6 +11,7 @@ import {
     Image
 } from 'react-native';
 import firebase from '../database/firebase';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const image = require("../images/login.jpg");
 
@@ -33,17 +34,7 @@ export default class Login extends Component {
         this.setState(state);
     }
 
-    UNSAFE_componentWillMount() {
-        try {
-            const registeredUserEmail = this.props.route.params.email;
-            if (registeredUserEmail) {
-                this.setState({ email: registeredUserEmail });
-            }
-        }
-
-        catch (err) {
-            console.log('Email not found');
-        }
+    async UNSAFE_componentWillMount() {
     }
 
     userLogin = () => {
@@ -59,7 +50,7 @@ export default class Login extends Component {
                 .collection("agent_list")
                 .where('email', '==', this.state.email)
                 .get()
-                .then((querySnapshot) => {
+                .then(async (querySnapshot) => {
                     let memberDetails;
 
                     querySnapshot.forEach((doc) => {
@@ -76,7 +67,16 @@ export default class Login extends Component {
                     }
 
                     if (this.state.password == memberDetails.password) {
-                        this.props.navigation.navigate('Home', { user: memberDetails });
+                        const jsonValue = JSON.stringify(memberDetails);
+                        await AsyncStorage.setItem('loggedInMemberDetails', jsonValue);
+
+                        this.props.navigation.navigate('Home',
+                            {
+                                screen: 'MemberList',
+                                params: { user: memberDetails }
+                            }
+                        );
+
                     } else {
                         Alert.alert('', 'Wrong password, please try again');
                     }

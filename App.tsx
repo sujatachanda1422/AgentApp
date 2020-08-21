@@ -9,8 +9,9 @@ import Chat from './screens/chat';
 import AddMember from './screens/addMember';
 import MemberChatList from './screens/memberChatList';
 import SubscriptionForm from './screens/subscriptionForm';
+import AddSubscription from './screens/addSubscription';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { Entypo, AntDesign } from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
 
@@ -20,18 +21,16 @@ function getHeader(route, navigation) {
   switch (routeName) {
     case 'MemberList':
       return (
-        <TouchableOpacity onPress={() => navigation.navigate('AddMember',
-          { uid: route.params.user.uid }
-        )}>
+        <TouchableOpacity onPress={() => navigation.navigate('AddMember')}>
           <Entypo name="add-user" size={24} color="white" style={{ marginRight: 20 }} />
         </TouchableOpacity>
       )
     case 'Subscription':
       return (
-        <TouchableOpacity onPress={() => navigation.navigate('AddMember',
-          { uid: route.params.user.uid }
+        <TouchableOpacity onPress={() => navigation.navigate('AddSubscription',
+          { verified: false }
         )}>
-          {/* <Entypo name="add-user" size={24} color="white" style={{ marginRight: 20 }} /> */}
+          <MaterialIcons name="group-add" size={34} color="white" style={{ marginRight: 20 }} />
         </TouchableOpacity>
       )
     case 'Settings':
@@ -42,7 +41,7 @@ function getHeader(route, navigation) {
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login"
+      <Stack.Navigator initialRouteName="Home"
         screenOptions={{
           headerTintColor: '#fff',
           headerTitleAlign: 'center',
@@ -71,8 +70,6 @@ export default function App() {
           name="Home"
           component={Home}
           options={({ route, navigation }) => ({
-            title: 'Hi, ' + route.params.user.name,
-            headerLeft: false,
             headerRight: () => getHeader(route, navigation)
           })}
         />
@@ -100,6 +97,13 @@ export default function App() {
             title: 'Subscription Form'
           }}
           component={SubscriptionForm}
+        />
+        <Stack.Screen
+          name="AddSubscription"
+          options={{
+            title: 'Add Subscription'
+          }}
+          component={AddSubscription}
         />
       </Stack.Navigator>
     </NavigationContainer>

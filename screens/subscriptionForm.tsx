@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { StyleSheet, View, TextInput, Button, Alert } from 'react-native';
 import firebase from '../database/firebase';
 import { Picker } from '@react-native-community/picker';
-import { CommonActions } from '@react-navigation/native';
 
 export default class SubscriptionForm extends Component {
   db: firebase.firestore.Firestore;
@@ -97,12 +96,14 @@ export default class SubscriptionForm extends Component {
             onChangeText={(val) => this.updateInputVal(val, 'name')}
           />
           <Picker
+          mode='dropdown'
             selectedValue={this.state.package}
-            style={{ height: 50, width: '100%', marginBottom: 20 }}
+            style={{ height: 50, width: '100%',
+             marginBottom: 20, backgroundColor: '#fff' }}
             onValueChange={(itemValue) => this.setState({ package: itemValue })}
           >
             {this.state.packages.map(item => {
-              return <Picker.Item key={item.id} label={item.name} value={item.name} />
+              return <Picker.Item key={item.name} label={item.name} value={item.name} />
             })
             }
           </Picker>
@@ -123,7 +124,8 @@ const styles = StyleSheet.create({
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: '#aac8dc'
   },
   overlay: {
     backgroundColor: 'rgba(199,199,199,0.3)',
@@ -142,7 +144,8 @@ const styles = StyleSheet.create({
     padding: 10,
     alignSelf: "center",
     backgroundColor: '#bfbebe',
-    borderRadius: 2
+    borderRadius: 2,
+    color: '#000'
   },
   preloader: {
     left: 0,
