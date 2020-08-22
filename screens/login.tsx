@@ -111,16 +111,11 @@ export default class Login extends Component {
                             alignItems: 'center',
                             marginTop: 20
                         }}>
-                            {/* <Image
-                                style={{
-                                    flex: 1,
-                                    resizeMode: 'cover',
-                                    width: 400,
-                                    height: 50,
-                                }}
-                                source={require('../images/chat.png')}
-                            /> */}
-                            <Text style={{ position: 'absolute', fontSize: 20 }}>ChunChun Agent</Text>
+                            <Text style={{
+                                fontSize: 28, color: '#fff', fontWeight: 'bold'
+                            }}>
+                                ChunChun Agent
+                                </Text>
                         </View>
                         <TextInput
                             style={styles.inputStyle}

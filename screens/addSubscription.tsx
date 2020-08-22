@@ -73,8 +73,7 @@ export default class AddSubscription extends Component {
     }
 
     registerUser() {
-        if (!this.state.name.trim() || !this.state.dob || !this.state.city
-            || !this.state.image) {
+        if (!this.state.name.trim() || !this.state.dob || !this.state.city) {
             Alert.alert('', 'Please provide all the details');
             return;
         }
@@ -93,7 +92,13 @@ export default class AddSubscription extends Component {
             image: this.state.image
         })
             .then(_ => {
-                this.props.navigation.goBack();
+                Alert.alert('', 'Member added successfully and now its available in Member app',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => this.props.navigation.goBack()
+                        }
+                    ]);
 
                 this.setState({
                     isLoading: false
@@ -110,7 +115,11 @@ export default class AddSubscription extends Component {
     checkDuplicateMobile() {
         return this.db.collection("member_list")
             .doc(this.state.mobile).get().then(doc => {
-                return doc.exists;
+                if (doc.exists && doc.data().mobile) {
+                    return doc.exists;
+                }
+
+                return false;
             });
     }
 

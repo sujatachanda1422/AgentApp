@@ -161,7 +161,11 @@ export default class AddMember extends Component {
   checkDuplicateMobile() {
     return this.db.collection("member_list")
       .doc(this.state.mobile).get().then(doc => {
-        return doc.exists;
+        if (doc.exists && doc.data().mobile) {
+          return doc.exists;
+        }
+
+        return false;
       });
   }
 
@@ -173,7 +177,7 @@ export default class AddMember extends Component {
 
     const isDuplicate = await this.checkDuplicateMobile();
 
-    if(isDuplicate) {
+    if (isDuplicate) {
       Alert.alert('', 'Mobile number already exists, please use another');
       return;
     }
@@ -189,10 +193,7 @@ export default class AddMember extends Component {
         dob: this.state.dob,
         agentId: this.state.agentId
       })
-      .then(doc => {
-        console.log('Doc  === ', doc);
-        return;
-
+      .then(_ => {
         this.props.navigation.navigate('Home', {
           screen: 'MemberList',
           params: { user: true }

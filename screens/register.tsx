@@ -71,8 +71,15 @@ export default class Register extends Component {
     return valid;
   }
 
-  registerUser = () => {
+  registerUser = async () => {
     if (!this.validateForm()) {
+      return;
+    }
+
+    const isDuplicate = await this.checkDuplicateEmail();
+
+    if (isDuplicate) {
+      Alert.alert('', 'Email already exists, please use another');
       return;
     }
 
@@ -138,6 +145,14 @@ export default class Register extends Component {
       })
       .catch(function (error) {
         console.error("Error adding document: ", error);
+      });
+  }
+
+  checkDuplicateEmail() {
+    return this.db.collection("agent_list")
+      .where('email', '==', this.state.email)
+      .get().then(doc => {
+        return !doc.empty;
       });
   }
 
