@@ -10,6 +10,7 @@ import AddMember from './screens/addMember';
 import MemberChatList from './screens/memberChatList';
 import SubscriptionForm from './screens/subscriptionForm';
 import AddSubscription from './screens/addSubscription';
+import AddCity from './screens/city';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
@@ -104,6 +105,13 @@ export default function App() {
             title: 'Add Subscription'
           }}
           component={AddSubscription}
+        />
+        <Stack.Screen
+          name="AddCity"
+          options={{
+            title: 'Add City'
+          }}
+          component={AddCity}
         />
       </Stack.Navigator>
     </NavigationContainer>

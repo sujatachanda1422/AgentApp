@@ -268,7 +268,7 @@ export default class AddMember extends Component {
 
               <Button
                 color="#3740FE"
-                title="Verify"
+                title="Verify Details"
                 onPress={() => this.checkForm()}
               />
             </View>
@@ -298,7 +298,7 @@ export default class AddMember extends Component {
               </View>
               <Button
                 color="#3740FE"
-                title="Submit"
+                title="Add Member"
                 onPress={() => this.addMember()}
               />
 

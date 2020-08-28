@@ -33,7 +33,7 @@ export default class SubscriptionForm extends Component {
       });
     })
       .catch(err => {
-        console.error('Error in package fetch', err);
+        console.log('Error in package fetch', err);
       })
   }
 
@@ -56,10 +56,20 @@ export default class SubscriptionForm extends Component {
       remaining_chat: firebase.firestore.FieldValue.increment(remainingChat)
     };
 
-    this.db.collection("subscription_list").doc(this.state.mobile)
-      .update(newDoc)
-      .then(_ => {
-        console.log('Thank you for accepting the request');
+    const db = this.db.collection("subscription_list").doc(this.state.mobile);
+
+    db.get()
+      .then(doc => {
+        if (doc.exists) {
+          db.update(newDoc);
+        } else {
+          db.set({
+            ...newDoc,
+            member_mobile: this.state.mobile,
+            name: this.state.name,
+            request_date_time: new Date().toLocaleDateString("en-US")
+          });
+        }
 
         Alert.alert('', 'Thank you for accepting the request',
           [
@@ -73,7 +83,7 @@ export default class SubscriptionForm extends Component {
           ]);
       })
       .catch(function (error) {
-        console.error("Error adding document: ", error);
+        console.log("Error adding document: ", error);
       });
   }
 
@@ -96,10 +106,12 @@ export default class SubscriptionForm extends Component {
             onChangeText={(val) => this.updateInputVal(val, 'name')}
           />
           <Picker
-          mode='dropdown'
+            mode='dropdown'
             selectedValue={this.state.package}
-            style={{ height: 50, width: '100%',
-             marginBottom: 20, backgroundColor: '#fff' }}
+            style={{
+              height: 50, width: '100%',
+              marginBottom: 20, backgroundColor: '#fff'
+            }}
             onValueChange={(itemValue) => this.setState({ package: itemValue })}
           >
             {this.state.packages.map(item => {

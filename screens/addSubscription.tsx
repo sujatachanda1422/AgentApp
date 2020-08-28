@@ -17,6 +17,7 @@ import RNDateTimePicker from '@react-native-community/datetimepicker';
 import ImagePicker from 'react-native-image-picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-community/picker';
+import AsyncStorage from '@react-native-community/async-storage';
 
 let cityList: firebase.firestore.DocumentData[] = [];
 
@@ -72,12 +73,27 @@ export default class AddSubscription extends Component {
         });
     }
 
-    registerUser() {
+    confirmRegistration() {
         if (!this.state.name.trim() || !this.state.dob || !this.state.city) {
             Alert.alert('', 'Please provide all the details');
             return;
         }
 
+        Alert.alert('', 'Are you sure, you want to proceed with the subscription?',
+            [
+                {
+                    text: 'No'
+                },
+                {
+                    text: 'Yes',
+                    onPress: () => {
+                        this.registerUser();
+                    }
+                }
+            ]);
+    }
+
+    registerUser() {
         this.setState({
             isLoading: true
         });
@@ -116,10 +132,25 @@ export default class AddSubscription extends Component {
         return this.db.collection("member_list")
             .doc(this.state.mobile).get().then(doc => {
                 if (doc.exists && doc.data().mobile) {
-                    return doc.exists;
+                    return doc.data();
                 }
 
                 return false;
+            });
+    }
+
+    sendOTPInMobile(mobile: string, otp: number) {
+        const url = 'https://portal.mobtexting.com/api/v2/sms/send';
+        const params = 'access_token=1b28086bb8909e43654a2a100bdfbeb9&sender=YTHVSC&&service=T&'
+        const msg = otp + ' is the OTP for your mobile number verification required to register in ChunChun App.';
+        const fetchUrl = url + '?' + params + 'message=' + msg + '&to=' + mobile;
+
+        fetch(fetchUrl)
+            .then((json) => {
+                console.log('SMS sent ', json.status);
+            })
+            .catch((error) => {
+                console.log("SMS error = ", error);
             });
     }
 
@@ -129,17 +160,32 @@ export default class AddSubscription extends Component {
             return;
         }
 
-        const isDuplicate = await this.checkDuplicateMobile();
+        const subscriber = await this.checkDuplicateMobile();
 
-        if (isDuplicate) {
-            Alert.alert('', 'Mobile number already exists, please use another');
+        if (subscriber) {
+            let user = await AsyncStorage.getItem('loggedInMemberDetails');
+            user = JSON.parse(user);
+
+            subscriber.member_mobile = subscriber.mobile;
+
+            this.props.navigation.navigate('SubscriptionForm',
+                {
+                    subscriber,
+                    user
+                });
+
             return;
         }
 
-        this.db.collection("member_list").doc(this.state.mobile).set({
-            otp: Math.floor(1000 + Math.random() * 9000)
-        })
+        const otp = Math.floor(1000 + Math.random() * 9000);
+
+        this.db.collection("member_list")
+            .doc(this.state.mobile).set({
+                otp
+            })
             .then(_ => {
+                this.sendOTPInMobile(this.state.mobile, otp);
+
                 this.setState({
                     isOtpSent: true
                 });
@@ -291,7 +337,7 @@ export default class AddSubscription extends Component {
 
                                     <Button
                                         color="#3740FE"
-                                        title="Send OTP"
+                                        title="Verify Mobile"
                                         onPress={() => this.sendOtp()}
                                     />
                                 </View>
@@ -396,7 +442,7 @@ export default class AddSubscription extends Component {
                                     <Button
                                         color="#3740FE"
                                         title="Sign Up"
-                                        onPress={() => this.registerUser()}
+                                        onPress={() => this.confirmRegistration()}
                                     />
                                 </View>
                             }
