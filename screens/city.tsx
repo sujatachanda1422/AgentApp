@@ -20,8 +20,14 @@ export default class AddCity extends Component {
     this.setState(state);
   }
 
-  acceptSubscription = () => {
-    const city = this.state.name.toLowerCase();
+  addCity = () => {
+    const city = this.state.name.trim().toLowerCase();
+
+    if (!city) {
+      Alert.alert('', 'Please enter a valid name');
+      return;
+    }
+
     const db = this.db.collection("city_list").doc(city);
 
     db.get()
@@ -34,6 +40,7 @@ export default class AddCity extends Component {
           });
           Alert.alert('', 'City added successfully!');
         }
+        this.setState({ name: '' });
       })
       .catch(function (error) {
         console.log("Error adding document: ", error);
@@ -54,7 +61,7 @@ export default class AddCity extends Component {
           <Button
             color="#3740FE"
             title="Add"
-            onPress={() => this.acceptSubscription()}
+            onPress={() => this.addCity()}
           />
         </View>
       </View>

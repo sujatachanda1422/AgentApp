@@ -20,10 +20,10 @@ export default class Login extends Component {
     constructor() {
         super();
         this.state = {
-            // email: '',
-            // password: '',
-            email: 'testagent@mail.com',
-            password: '1234',
+            email: '',
+            password: '',
+            // email: 'testagent@mail.com',
+            // password: '1234',
             isLoading: false
         }
     }

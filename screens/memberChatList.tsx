@@ -55,8 +55,6 @@ export default class MemberChatList extends Component {
         });
 
         this.setState({ memberList: [...this.memberArray] });
-
-        // console.log('Data = ', this.memberArray);
       });
   }
 

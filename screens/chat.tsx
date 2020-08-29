@@ -57,7 +57,6 @@ export default class Chat extends Component {
       .child(this.state.person.from)
       .child(this.state.person.to)
       .on('child_added', value => {
-        console.log("Old chats == ", value.val());
         this.setState(prevState => {
           return {
             messageList: [...prevState.messageList, value.val()],

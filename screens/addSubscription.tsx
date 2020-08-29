@@ -299,9 +299,6 @@ export default class AddSubscription extends Component {
                     const snapshot = await imageRef.put(blob, { contentType: mimeString });
 
                     const url = await snapshot.ref.getDownloadURL();
-
-                    console.log('Url', url);
-
                     this.setState({ image: url, isLoading: false });
                 }
                 catch (err) {

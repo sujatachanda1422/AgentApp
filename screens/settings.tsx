@@ -75,8 +75,8 @@ export default class Settings extends Component {
             <Text style={styles.listText}>Subscription List</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.listItem, { marginLeft: -5 }]}
-            onPress={() => this.props.navigation.navigate('AddSubscription',
-              { verified: false })}>
+            onPress={() => this.props.navigation.navigate('SubscriptionPlans',
+              { user: this.props.user })}>
             <FontAwesome name="list-ul" size={26} color="black" />
             <Text style={styles.listText}>Subscription Plans</Text>
           </TouchableOpacity>
