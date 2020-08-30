@@ -187,7 +187,7 @@ export default class AddMember extends Component {
         gender: this.state.gender,
         city: this.state.city,
         image: this.state.image,
-        dob: this.state.dob,
+        dob: new Date(this.state.dob).getTime(),
         agentId: this.state.agentId
       })
       .then(_ => {

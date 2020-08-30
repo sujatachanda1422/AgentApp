@@ -21,8 +21,8 @@ export default class MemberChatList extends Component {
     }
   }
 
-  getAge(dob: string | number | Date) {
-    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
+  getAge(dob: number) {
+    return Math.floor((new Date() - dob) / 3.15576e+10);
   }
 
   UNSAFE_componentWillMount() {
@@ -35,7 +35,7 @@ export default class MemberChatList extends Component {
             <Text style={{ fontSize: 22, color: '#fff' }}>{name}</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
               <Text style={{ color: '#fff' }}>{city}</Text>
-              {(dob !== '' && dob != null) &&
+              {(dob != null && typeof (dob) !== 'string') &&
                 <Text style={{ color: '#fff' }}>, {this.getAge(dob)}</Text>
               }
             </View>
@@ -82,7 +82,7 @@ export default class MemberChatList extends Component {
                   </Text>
                   <View style={styles.listDesc}>
                     <Text style={{ color: '#000', textTransform: 'capitalize' }}>City - {item.city}</Text>
-                    {(item.dob != null && item.dob !== '') &&
+                    {(item.dob != null && typeof (item.dob) !== 'string') &&
                       <View style={{ flexDirection: 'row' }}>
                         <Text>,</Text>
                         <Text style={{ color: '#000', paddingHorizontal: 5 }}>

@@ -24,7 +24,7 @@ export default class MemberList extends Component {
   }
 
   getAge(dob: string | number | Date) {
-    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
+    return Math.floor((new Date() - dob) / 3.15576e+10);
   }
 
   getMemberList() {
@@ -63,7 +63,7 @@ export default class MemberList extends Component {
                 </Text>
                 <View style={{ flexDirection: 'row' }}>
                   <Text style={styles.listText}>City - {item.city}</Text>
-                  {item.dob != null &&
+                  {item.dob != null && 
                     <Text style={styles.listText}>
                       , Age - {this.getAge(item.dob)}
                     </Text>

@@ -26,8 +26,8 @@ export default class Chat extends Component {
     };
   }
 
-  getAge(dob: string | number | Date) {
-    return Math.floor((new Date() - new Date(dob).getTime()) / 3.15576e+10);
+  getAge(dob: number) {
+    return Math.floor((new Date() - dob) / 3.15576e+10);
   }
 
   componentDidMount() {
@@ -40,7 +40,7 @@ export default class Chat extends Component {
             <Text style={{ fontSize: 22, color: '#fff' }}>{name}</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
               <Text style={{ color: '#fff' }}>{city}</Text>
-              {(dob !== '' && dob != null) &&
+              {(dob != null && typeof (dob) !== 'string') &&
                 <Text style={{ color: '#fff' }}>, {this.getAge(dob)}</Text>
               }
             </View>
@@ -199,8 +199,8 @@ export default class Chat extends Component {
           style={{ paddingHorizontal: 10 }}
           data={this.state.messageList}
           ref={ref => this.flatList = ref}
-          onContentSizeChange={() => this.flatList.scrollToEnd({animated: true})}
-          onLayout={() => this.flatList.scrollToEnd({animated: true})}
+          onContentSizeChange={() => this.flatList.scrollToEnd({ animated: true })}
+          onLayout={() => this.flatList.scrollToEnd({ animated: true })}
           renderItem={this.renderRow}
           keyExtractor={(item, index) => index.toString()}
         />

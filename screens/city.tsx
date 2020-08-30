@@ -20,6 +20,10 @@ export default class AddCity extends Component {
     this.setState(state);
   }
 
+  capitalizeCity(string: string) {
+    return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+  }
+
   addCity = () => {
     const city = this.state.name.trim().toLowerCase();
 
@@ -36,7 +40,7 @@ export default class AddCity extends Component {
           Alert.alert('', 'This city already exists. Please try another.');
         } else {
           db.set({
-            name: city
+            name: this.capitalizeCity(city)
           });
           Alert.alert('', 'City added successfully!');
         }

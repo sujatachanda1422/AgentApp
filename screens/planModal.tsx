@@ -64,6 +64,8 @@ export default class PlanModal extends Component {
   }
 
   checkIsNumber(val: string, field: string) {
+    val = String(val);
+
     if (field === 'name' && !val.trim().length) {
       Alert.alert('', 'Please provide a valid value for package name');
       return false;

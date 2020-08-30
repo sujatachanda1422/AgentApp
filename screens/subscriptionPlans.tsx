@@ -76,9 +76,16 @@ export default class SubscriptionPlans extends Component {
     });
   }
 
-  onModalClose = (data) => {
+  onModalClose = (data: any) => {
+    // update takes time
     if (data) {
-      this.getPackageList();
+      this.setState({ modalVisible: false, isLoading: true });
+
+      setTimeout(() => {
+        this.getPackageList();
+      }, 200);
+
+      return
     }
     this.setState({ modalVisible: false });
   }

@@ -103,7 +103,7 @@ export default class AddSubscription extends Component {
             city: this.state.city,
             name: this.state.name,
             loginPin: this.state.loginPin,
-            dob: this.state.dob,
+            dob: new Date(this.state.dob).getTime(),
             gender: this.state.gender,
             image: this.state.image
         })
