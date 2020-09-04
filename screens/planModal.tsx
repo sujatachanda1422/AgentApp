@@ -152,8 +152,6 @@ export default class PlanModal extends Component {
           }
         }
       ]);
-
-
   }
 
   hideModal(type: string) {
