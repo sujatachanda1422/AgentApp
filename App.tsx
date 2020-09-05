@@ -113,7 +113,7 @@ export default function App() {
         <Stack.Screen
           name="AddCity"
           options={{
-            title: 'Add City'
+            title: 'City'
           }}
           component={AddCity}
         />

@@ -127,7 +127,7 @@ export default class AddCity extends Component {
         setTimeout(_ => {
           this.setState({ modalVisible: false });
           this.getCityList();
-        }, 50);
+        }, 100);
       })
       .catch(function (error) {
         console.log("Error adding document: ", error);
@@ -162,7 +162,7 @@ export default class AddCity extends Component {
         setTimeout(_ => {
           this.setState({ modalVisible: false });
           this.getCityList();
-        }, 50);
+        }, 100);
       })
       .catch(function (error) {
         console.log("City delete error: ", error);
@@ -250,7 +250,7 @@ export default class AddCity extends Component {
                       onPress={() =>
                         this.hideModal(this.state.isUpdate ? 'edit' : 'add')}
                     >
-                      {this.state.isUpdate ? 'Edit' : 'Add'}
+                      {this.state.isUpdate ? 'Update' : 'Add'}
                     </Button>
                   </View>
                 </View>
