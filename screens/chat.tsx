@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
   View,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -10,13 +9,17 @@ import {
   StyleSheet
 } from 'react-native';
 import firebase from 'firebase';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const userImg = require("../images/user.jpg");
 
 export default class Chat extends Component {
+  db: firebase.firestore.Firestore;
+
   constructor(props) {
     super(props);
     this.state = {
+      isUserOnline: false,
       person: {
         from: this.props.route.params.from,
         to: this.props.route.params.to
@@ -24,45 +27,67 @@ export default class Chat extends Component {
       textMessage: '',
       messageList: [],
     };
+
+    this.db = firebase.firestore();
   }
 
   getAge(dob: number) {
     return Math.floor((new Date() - dob) / 3.15576e+10);
   }
 
-  componentDidMount() {
-    const { name, city, dob } = this.props.route.params.user;
+  componentWillUnmount() {
+    this.updateOnlineStatus(false);
 
-    this.props.navigation.setOptions({
-      headerTitle: () => {
-        return (
-          <View>
-            <Text style={{ fontSize: 22, color: '#fff' }}>{name}</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <Text style={{ color: '#fff' }}>{city}</Text>
-              {(dob != null && typeof (dob) !== 'string') &&
-                <Text style={{ color: '#fff' }}>, {this.getAge(dob)}</Text>
-              }
-            </View>
-          </View>
-        )
-      }
-    })
+    firebase
+      .database()
+      .ref('messages')
+      .child(this.state.person.from)
+      .child(this.state.person.to)
+      .off('child_added');
+
+    firebase
+      .database()
+      .ref('recents')
+      .child(this.state.person.from)
+      .child(this.state.person.to)
+      .off('value');
   }
 
-  UNSAFE_componentWillMount() {
+  async componentDidMount() {
+    let chatVal, isFromLoggedInUser;
+
     firebase
       .database()
       .ref('messages')
       .child(this.state.person.from)
       .child(this.state.person.to)
       .on('child_added', value => {
+        chatVal = value.val();
+        isFromLoggedInUser = chatVal.from === this.state.person.from;
+
+        if (this.state.isUserOnline && !isFromLoggedInUser
+          && !chatVal.read) {
+          this.setReadStatus(chatVal);
+        }
+
         this.setState(prevState => {
           return {
             messageList: [...prevState.messageList, value.val()],
           };
         });
       });
+
+    firebase
+      .database()
+      .ref('messages')
+      .child(this.state.person.from)
+      .child(this.state.person.to)
+      .once("value", val => {
+        this.setMsgRead(true);
+      });
+
+    this.setUserOnlineStatus();
+    this.updateOnlineStatus(true);
   }
 
   handleChange = key => val => {
@@ -95,6 +120,134 @@ export default class Chat extends Component {
     });
   }
 
+  setUserOnlineStatus() {
+    let onlineVal: any;
+    const { name, city, dob } = this.props.route.params.user;
+
+    firebase
+      .database()
+      .ref('recents')
+      .child(this.state.person.from)
+      .child(this.state.person.to)
+      .on('value', value => {
+        onlineVal = value.val() && value.val().online ? value.val().online : false;
+
+        this.setState({ isUserOnline: onlineVal });
+
+        if (onlineVal) {
+          this.setMsgRead(false);
+        }
+
+        this.props.navigation.setOptions({
+          headerTitle: () => {
+            return (
+              <View style={styles.headerWrapper}>
+                <View style={[styles.status,
+                onlineVal ? styles.online : styles.offline]}></View>
+                <View>
+                  <Text style={{ fontSize: 22, color: '#fff' }}>{name}</Text>
+                  <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ color: '#fff' }}>{city}</Text>
+                    {(dob != null && typeof (dob) !== 'string') &&
+                      <Text style={{ color: '#fff' }}>, {this.getAge(dob)}</Text>
+                    }
+                  </View>
+                </View>
+              </View>
+            )
+          }
+        });
+      });
+  }
+
+  setReadStatus(msgObj: { [x: string]: boolean; key: string; }) {
+    firebase
+      .database()
+      .ref('messages/' + this.state.person.from + '/' + this.state.person.to +
+        '/' + msgObj.key)
+      .update({ read: true });
+  }
+
+  async setMsgRead(fromMount: boolean) {
+    let msgListArr = [...this.state.messageList];
+    const len = msgListArr.length;
+
+    if (!len) return;
+
+    const direction1 = this.state.person.from + '/' + this.state.person.to;
+    const direction2 = this.state.person.to + '/' + this.state.person.from;
+
+    const fromMountDir = fromMount ? direction1 : direction2;
+    const fromMountDirOpp = fromMount ? direction2 : direction1;
+
+    let ref = firebase.database().ref('recents/' + fromMountDir);
+
+    const message = await ref.once("value").then(function (snapshot) {
+      return snapshot.val();
+    });
+
+    const unreadArr = message ? message.unread : null;
+
+    if (!unreadArr) return;
+    const unreadArrLen = unreadArr.length;
+
+    for (let i = 0; i < unreadArrLen; i++) {
+      firebase
+        .database()
+        .ref('messages/' + fromMountDirOpp + '/' + unreadArr[i])
+        .update({ read: true });
+
+      for (let j = len - 1; j >= len - 40; j--) {
+        if (msgListArr[j] &&
+          msgListArr[j].key === unreadArr[i]) {
+          msgListArr[j]['read'] = true;
+          break;
+        }
+      }
+    };
+
+    this.setState({ messageList: msgListArr });
+    ref.update({ unread: [] });
+  }
+
+  updateOnlineStatus(status: boolean) {
+    firebase
+      .database()
+      .ref('recents/' + this.state.person.to + '/' + this.state.person.from)
+      .update({
+        online: status
+      });
+  }
+
+  async setUnreadCount(msgId: string | null) {
+    let updates = {};
+    let ref = firebase.database().ref('recents/' + this.state.person.to + '/' + this.state.person.from);
+
+    let message = await ref.once("value").then(function (snapshot) {
+      return snapshot.val();
+    });
+
+    message = message || {};
+
+    if (!this.state.isUserOnline) {
+      let unreadArr = message && message.unread ? message.unread : [];
+      unreadArr.push(msgId);
+      message['unread'] = unreadArr;
+      message['time'] = firebase.database.ServerValue.TIMESTAMP
+
+      updates[
+        'recents/' + this.state.person.to + '/' + this.state.person.from
+      ] = message;
+
+      ref.set(message);
+    }
+
+    firebase
+      .database()
+      .ref('recents/' + this.state.person.from + '/' + this.state.person.to)
+      .update({ time: firebase.database.ServerValue.TIMESTAMP });
+  }
+
   sendMessage = async () => {
     if (this.state.textMessage.length) {
       if (!this.state.messageList.length) {
@@ -107,11 +260,16 @@ export default class Chat extends Component {
         .child(this.state.person.from)
         .child(this.state.person.to)
         .push().key;
+
+      this.setUnreadCount(msgId);
+
       let updates = {};
       let message = {
         message: this.state.textMessage,
         time: firebase.database.ServerValue.TIMESTAMP,
         from: this.state.person.from,
+        read: this.state.isUserOnline,
+        key: msgId
       };
 
       updates[
@@ -139,23 +297,6 @@ export default class Chat extends Component {
     const isFromLoggedInUser = item.from === this.state.person.from;
 
     return (
-      // <View
-      //   style={{
-      //     flexDirection: 'row',
-      //     width: '70%',
-      //     alignSelf: item.from === this.state.person.from ? 'flex-end' : 'flex-start',
-      //     backgroundColor: item.from === this.state.person.from ? '#00A398' : '#7cb342',
-      //     borderRadius: 10,
-      //     marginBottom: 10,
-      //   }}>
-      //   <Text style={{ color: '#fff', padding: 7, fontSize: 16 }}>
-      //     {item.message}
-      //   </Text>
-      //   <Text style={{ color: '#eee', padding: 3, fontSize: 12 }}>
-      //     {this.convertTime(item.time)}
-      //   </Text>
-      // </View>
-
       <View
         style={{
           flexDirection: 'column',
@@ -180,12 +321,19 @@ export default class Chat extends Component {
           }]}>
             {item.message}
           </Text>
-          <Text style={{
-            color: '#e6e6e6', marginTop: 0, fontSize: 12,
+          <View style={{
+            flexDirection: 'row', marginTop: 0,
             alignSelf: isFromLoggedInUser ? 'flex-end' : 'flex-start'
           }}>
-            {this.convertTime(item.time)}
-          </Text>
+            <Text style={{ color: '#fff', fontSize: 12 }}>
+              {this.convertTime(item.time)}
+            </Text>
+            {isFromLoggedInUser &&
+              <MaterialCommunityIcons name="check-all" size={14}
+                style={{ marginLeft: 5 }}
+                color={item.read ? "blue" : "white"} />
+            }
+          </View>
         </View>
       </View>
     );
@@ -195,9 +343,11 @@ export default class Chat extends Component {
     return (
       <View style={{ display: "flex", flexDirection: 'column', height: '100%' }}>
         <FlatList
+          extraData={this.state.messageList}
           contentContainerStyle={{ paddingVertical: 10 }}
           style={{ paddingHorizontal: 10 }}
           data={this.state.messageList}
+          initialNumToRender={10}
           ref={ref => this.flatList = ref}
           onContentSizeChange={() => this.flatList.scrollToEnd({ animated: true })}
           onLayout={() => this.flatList.scrollToEnd({ animated: true })}
@@ -255,5 +405,22 @@ const styles = StyleSheet.create({
   textItem: {
     color: '#fff',
     fontSize: 16
+  },
+  status: {
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    alignSelf: 'center',
+    marginRight: 10
+  },
+  online: {
+    backgroundColor: 'green',
+  },
+  offline: {
+    backgroundColor: 'grey',
+  },
+  headerWrapper: {
+    flexDirection: 'row',
+    marginLeft: -20,
   }
 });

@@ -10,9 +10,11 @@ import {
 import firebase from '../database/firebase';
 import { AntDesign } from '@expo/vector-icons';
 const userImg = require("../images/user.jpg");
+let unreadMsgObj = {};
 
 export default class MemberChatList extends Component {
   memberArray: Array<Object> = [];
+  private _unsubscribe: any;
 
   constructor() {
     super();
@@ -26,6 +28,7 @@ export default class MemberChatList extends Component {
   }
 
   UNSAFE_componentWillMount() {
+    let docData;
     const { name, mobile, city, dob } = this.props.route.params.user;
 
     this.props.navigation.setOptions({
@@ -51,11 +54,100 @@ export default class MemberChatList extends Component {
       .collection('members')
       .get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          this.memberArray.push(doc.data());
+          docData = doc.data();
+          docData.count = 0;
+          this.memberArray.push(docData);
         });
 
         this.setState({ memberList: [...this.memberArray] });
       });
+
+    this.attachUnreadCountEvent(mobile);
+
+    this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+      this.sortUnread();
+    });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
+    
+    firebase
+      .database()
+      .ref('recents')
+      .child(this.props.route.params.user.mobile)
+      .off('value');
+  }
+
+  attachUnreadCountEvent(user: string) {
+    firebase
+      .database()
+      .ref('recents')
+      .child(user)
+      .on('value', (value) => {
+        unreadMsgObj = {};
+        const val = value.val();
+
+        for (let i in val) {
+          if (val[i].unread) {
+            if (unreadMsgObj[i]) {
+              unreadMsgObj[i]['count'] = val[i].unread.length;
+            } else {
+              unreadMsgObj[i] = {
+                count: val[i].unread.length
+              }
+            }
+          }
+
+          if (val[i].time) {
+            if (unreadMsgObj[i]) {
+              unreadMsgObj[i]['time'] = val[i].time;
+            } else {
+              unreadMsgObj[i] = {
+                time: val[i].time
+              }
+            }
+          }
+        }
+
+        this.sortUnread();
+        this.showUnreadCount();
+      });
+  }
+
+
+  sortUnread() {
+    if (!Object.keys(unreadMsgObj).length) return;
+
+    this.state.memberList.sort((member1, member2) => {
+      if (unreadMsgObj[member1.mobile] && unreadMsgObj[member2.mobile]) {
+        return unreadMsgObj[member2.mobile].time - unreadMsgObj[member1.mobile].time;
+      }
+      if (unreadMsgObj[member1.mobile]) {
+        return -1;
+      }
+      if (unreadMsgObj[member2.mobile]) {
+        return 1;
+      }
+
+      return null;
+    });
+  }
+
+  showUnreadCount() {
+    let mobile;
+    let memberListArr = [...this.state.memberList];
+
+    for (let i = 0; i < memberListArr.length; i++) {
+      mobile = memberListArr[i].mobile;
+      if (unreadMsgObj[mobile]) {
+        memberListArr[i].count = unreadMsgObj[mobile].count;
+      } else {
+        memberListArr[i].count = 0;
+      }
+    }
+
+    this.setState({ memberList: memberListArr });
   }
 
   render() {
@@ -92,6 +184,11 @@ export default class MemberChatList extends Component {
                     }
                   </View>
                 </View>
+                {item.count > 0 &&
+                  <View>
+                    <Text style={styles.unreadCount} >{item.count}</Text>
+                  </View>
+                }
                 <View>
                   <AntDesign name="right" size={24} color="#dcdcdc" />
                 </View>
@@ -145,5 +242,15 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 30,
     marginRight: 10
+  },
+  unreadCount: {
+    backgroundColor: '#de5656',
+    borderRadius: 24,
+    width: 24,
+    height: 24,
+    lineHeight: 24,
+    fontSize: 12,
+    textAlign: 'center',
+    color: '#fff'
   }
 });

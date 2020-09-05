@@ -92,6 +92,9 @@ export default function App() {
         <Stack.Screen
           name="Chat"
           component={Chat}
+          options={{
+            headerTitleAlign: 'left',
+          }}
         />
         <Stack.Screen
           name="SubscriptionForm"
