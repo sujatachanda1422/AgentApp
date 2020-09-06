@@ -8,7 +8,8 @@ import {
     Alert,
     ActivityIndicator,
     ImageBackground,
-    Image
+    Image,
+    BackHandler
 } from 'react-native';
 import firebase from '../database/firebase';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -22,8 +23,6 @@ export default class Login extends Component {
         this.state = {
             email: '',
             password: '',
-            // email: 'testagent@mail.com',
-            // password: '1234',
             isLoading: false
         }
     }
@@ -34,7 +33,17 @@ export default class Login extends Component {
         this.setState(state);
     }
 
-    async UNSAFE_componentWillMount() {
+    UNSAFE_componentWillMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+    }
+
+    handleBackButton = () => {
+        BackHandler.exitApp();
+        return true;
     }
 
     userLogin = () => {

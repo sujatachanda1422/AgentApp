@@ -141,10 +141,31 @@ export default class AddSubscription extends Component {
 
     sendOTPInMobile(mobile: string, otp: number) {
         const url = 'https://portal.mobtexting.com/api/v2/sms/send';
-        const params = 'access_token=1b28086bb8909e43654a2a100bdfbeb9&sender=YTHVSC&&service=T&'
+        const params = 'access_token=1b28086bb8909e43654a2a100bdfbeb9&sender=YTHVSN&service=T&'
         const msg = otp + ' is the OTP for your mobile number verification required to register in ChunChun App.';
         const fetchUrl = url + '?' + params + 'message=' + msg + '&to=' + mobile;
 
+        // let data = {
+        //     method: 'POST',
+        //     body: JSON.stringify({
+        //         message: msg,
+        //         to: mobile,
+        //         access_token: '1b28086bb8909e43654a2a100bdfbeb9',
+        //         sender: 'YTHVSC',
+        //     }),
+        //     headers: {
+        //       'Accept':       'application/json',
+        //       'Content-Type': 'application/json'
+        //     }
+        //   };
+
+        // fetch(url, data)
+        //     .then((json) => {
+        //         console.log('SMS sent ', json, json.json());
+        //     })
+        //     .catch((error) => {
+        //         console.log("SMS error = ", error);
+        //     });
         fetch(fetchUrl)
             .then((json) => {
                 console.log('SMS sent ', json.status);
