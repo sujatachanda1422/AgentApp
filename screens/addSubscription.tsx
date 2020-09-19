@@ -285,7 +285,12 @@ export default class AddSubscription extends Component {
 
     async pickImage() {
         const options = {
-            title: 'Select Profile Picture'
+            title: 'Select Profile Picture',
+            noData: true,
+            maxWidth: 500,
+            maxHeight: 500,
+            quality: 1,
+            storageOptions: { privateDirectory: true }
         };
 
         ImagePicker.showImagePicker(options, async (response) => {
