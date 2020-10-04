@@ -46,19 +46,21 @@ export default class SubscriptionForm extends Component {
   acceptSubscription = () => {
     const selectedPackage = this.state.packages.filter(pkg => pkg.name === this.state.package)[0];
     const validity = selectedPackage.validity | 1;
-    const remainingChat = selectedPackage.chatNumber;
 
     const newDoc = {
       accepted_by: this.props.route.params.user.email,
       status: 'accepted',
       package_name: this.state.package,
       expiry_date: new Date(new Date().getTime() + ((validity * 30) * 24 * 60 * 60 * 1000)).toLocaleDateString("en-US"),
-      remaining_chat: firebase.firestore.FieldValue.increment(remainingChat)
+      remaining_chat: selectedPackage.chatNumber
     };
 
-    const db = this.db.collection("subscription_list").doc(this.state.mobile);
+    const db = this.db.collection("subscription_list")
+      .doc(this.state.mobile)
+      .collection('list').doc(this.props.route.params.subscriber.id);
 
-    db.get()
+    db
+      .get()
       .then(doc => {
         if (doc.exists) {
           db.update(newDoc);
@@ -67,6 +69,7 @@ export default class SubscriptionForm extends Component {
             ...newDoc,
             member_mobile: this.state.mobile,
             name: this.state.name,
+            id: this.props.route.params.subscriber.id,
             request_date_time: new Date().toLocaleDateString("en-US")
           });
         }

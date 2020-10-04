@@ -28,26 +28,39 @@ export default class Subscription extends Component {
       isLoading: true
     });
 
-    firebase
+    this.subscriptionArray = [];
+
+    const db = firebase
       .firestore()
-      .collection("subscription_list")
+      .collection("subscription_list");
+
+    db
       .get()
       .then((querySnapshot) => {
         let data;
 
-        this.subscriptionArray = [];
+        if (!querySnapshot.size) {
+          this.setState({
+            isLoading: false,
+            subscriptionList: [...this.subscriptionArray]
+          });
+          return;
+        }
+        querySnapshot.forEach(doc => {
+          db.doc(doc.id).collection('list').get().then(snapshot => {
+            snapshot.forEach((item) => {
+              data = item.data();
 
-        querySnapshot.forEach((doc) => {
-          data = doc.data();
+              if (data.status === 'pending') {
+                this.subscriptionArray.push(data);
+              }
+            });
 
-          if (data.status === 'pending') {
-            this.subscriptionArray.push(data);
-          }
-        });
-
-        this.setState({
-          isLoading: false,
-          subscriptionList: [...this.subscriptionArray]
+            this.setState({
+              isLoading: false,
+              subscriptionList: [...this.subscriptionArray]
+            });
+          });
         });
       })
       .catch(err => {
@@ -72,7 +85,7 @@ export default class Subscription extends Component {
           < FlatList
             data={this.state.subscriptionList}
             width='100%'
-            keyExtractor={(index) => index.member_mobile}
+            keyExtractor={(index) => index.id}
             renderItem={({ item }) =>
               <TouchableOpacity style={styles.item}
                 onPress={() => this.props.navigation.navigate('SubscriptionForm',
