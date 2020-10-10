@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import firebase from '../database/firebase';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default class Subscription extends Component {
   subscriptionArray: Array<Object> = [];
@@ -17,6 +17,17 @@ export default class Subscription extends Component {
 
   UNSAFE_componentWillMount() {
     this.getList();
+
+    this.props.navigation.setOptions({
+      headerLeft: () => {
+        return (
+          <TouchableOpacity
+            onPress={() => this.getList()}>
+           <MaterialCommunityIcons name="reload" size={24} color="white"  style={{ marginLeft: 20 }}  />
+          </TouchableOpacity>
+        );
+      }
+    });
   }
 
   UNSAFE_componentWillReceiveProps() {

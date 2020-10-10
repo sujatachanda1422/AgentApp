@@ -40,6 +40,18 @@ function getHeader(route, navigation) {
   }
 }
 
+function getLeftHeader(route, navigation) {
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'MemberList';
+  if (routeName === 'Subscription') {
+    return (
+      <TouchableOpacity onPress={() => 
+        navigation.emit('tabFocus')}>
+        <MaterialIcons name="group-add" size={34} color="white" style={{ marginRight: 20 }} />
+      </TouchableOpacity>
+    )
+  }
+}
+
 export default function App() {
   return (
     <NavigationContainer>
@@ -72,7 +84,8 @@ export default function App() {
           name="Home"
           component={Home}
           options={({ route, navigation }) => ({
-            headerRight: () => getHeader(route, navigation)
+            headerRight: () => getHeader(route, navigation),
+            headerLeft: () => getLeftHeader(route, navigation)
           })}
         />
         <Stack.Screen
